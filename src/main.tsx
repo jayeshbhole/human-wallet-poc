@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
-import './index.css';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ErrorPage from './pages/Error';
 import Landing from './pages/Landing';
 import PhoneLogin from './pages/PhoneLogin';
 import LoadingSplashScreen from './routes';
 import OnboardingLayout from './routes/Onboarding';
+import './styles/index.css';
 
 const router = createBrowserRouter([
   {
