@@ -1,13 +1,14 @@
 import { Menu, Transition } from '@headlessui/react';
 import Flags from 'country-flag-icons/react/3x2';
 import {
-  AsYouType,
   CountryCode,
   formatIncompletePhoneNumber,
   getCountries,
   getCountryCallingCode,
+  isPossiblePhoneNumber,
+  parseIncompletePhoneNumber,
 } from 'libphonenumber-js/max';
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import formatAsYouType from '../utils/formatAsYouType';
 
 const countries = getCountries();
@@ -40,13 +41,20 @@ const PhoneInput = () => {
   const handlePhoneInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const number = e.target.value;
-      setPhoneNumber(formatAsYouType(countryCode, number));
+      console.log(number);
+      const phoneNumber = parseIncompletePhoneNumber(number);
+      console.log(phoneNumber);
+      //   setPhoneNumber(number);
+      //   setPhoneNumber(formatAsYouType(countryCode, number));
+      setPhoneNumber(formatIncompletePhoneNumber(number, countryCode));
     },
     [countryCode, setPhoneNumber]
   );
 
+  const isInputValid = isPossiblePhoneNumber(phoneNumber, countryCode);
+
   return (
-    <div className="__input-phone w-full flex gap-4 items-center">
+    <div className={`__input-phone w-full flex items-center ${isInputValid ? 'valid' : 'error'}`}>
       {/* country select */}
       <Menu
         as="div"
@@ -61,7 +69,7 @@ const PhoneInput = () => {
           </div>
 
           {/* country dial code */}
-          <span className="whitespace-nowrap text-lg">+ {dialCode}</span>
+          <span className="whitespace-nowrap text-lg text-black/70 font-[500]">+ {dialCode}</span>
         </Menu.Button>
 
         <Transition
@@ -97,7 +105,7 @@ const PhoneInput = () => {
 
       {/* phone number input */}
       <input
-        className="w-full tracking-widest font-[500] placeholder:font-[500] text-lg"
+        className={`__number-input`}
         name="countryDialCode"
         type="text"
         onChange={handlePhoneInputChange}
