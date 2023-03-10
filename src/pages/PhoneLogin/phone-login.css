@@ -1,0 +1,10 @@
+.__input-phone input {
+  @apply outline-none bg-primaryBg;
+}
+
+.__input-phone {
+  @apply border-b-2 border-black/10 py-1;
+}
+.__input-phone.active {
+  @apply border-black/20;
+}

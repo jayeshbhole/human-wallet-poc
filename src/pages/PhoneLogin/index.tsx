@@ -1,4 +1,5 @@
-import PhoneInput from '../components/PhoneInput';
+import PhoneInput from '../../components/PhoneInput';
+import './phone-login.css';
 
 const PhoneLogin = () => {
   return (
@@ -13,17 +14,9 @@ const PhoneLogin = () => {
         <p className="__step-description">Enter the phone number for your account.</p>
       </div>
 
-      {/* phone number input */}
-      {/* <div className="flex justify-between">
-        <div>IN +91</div>
-        <input
-          type="tel"
-          className="onboarding --phone-input"
-          placeholder="0000 000 000"
-        />
-      </div> */}
-
       <PhoneInput />
+
+      {/* Action Button */}
     </>
   );
 };
