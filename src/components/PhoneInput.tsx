@@ -1,14 +1,8 @@
 import { Menu, Transition } from '@headlessui/react';
 import Flags from 'country-flag-icons/react/3x2';
-import {
-  CountryCode,
-  formatIncompletePhoneNumber,
-  getCountries,
-  getCountryCallingCode,
-  isPossiblePhoneNumber,
-  parseIncompletePhoneNumber,
-} from 'libphonenumber-js/max';
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { CountryCode, getCountries, getCountryCallingCode, isPossiblePhoneNumber } from 'libphonenumber-js/min';
+import { Fragment, useCallback, useState } from 'react';
+import PhoneInput from 'react-phone-number-input/input';
 import formatAsYouType from '../utils/formatAsYouType';
 
 const countries = getCountries();
@@ -24,7 +18,7 @@ const FlagIcon = ({ code, className }: { code: string; className: string }) => {
   );
 };
 
-const PhoneInput = () => {
+const PhoneInputComponent = () => {
   const [countryCode, setCountryCode] = useState<CountryCode>('US');
   const [dialCode, setDialCode] = useState('1');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -38,23 +32,10 @@ const PhoneInput = () => {
     [countryCode, setCountryCode, setDialCode, setPhoneNumber]
   );
 
-  const handlePhoneInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const number = e.target.value;
-      console.log(number);
-      const phoneNumber = parseIncompletePhoneNumber(number);
-      console.log(phoneNumber);
-      //   setPhoneNumber(number);
-      //   setPhoneNumber(formatAsYouType(countryCode, number));
-      setPhoneNumber(formatIncompletePhoneNumber(number, countryCode));
-    },
-    [countryCode, setPhoneNumber]
-  );
-
   const isInputValid = isPossiblePhoneNumber(phoneNumber, countryCode);
 
   return (
-    <div className={`__input-phone w-full flex items-center ${isInputValid ? 'valid' : 'error'}`}>
+    <div className={`__input-phone w-full flex items-center ${phoneNumber ? (isInputValid ? 'valid' : 'error') : ''}`}>
       {/* country select */}
       <Menu
         as="div"
@@ -104,16 +85,17 @@ const PhoneInput = () => {
       </Menu>
 
       {/* phone number input */}
-      <input
+      <PhoneInput
         className={`__number-input`}
-        name="countryDialCode"
-        type="text"
-        onChange={handlePhoneInputChange}
+        country={countryCode}
         value={phoneNumber}
-        placeholder="(000) 000-0000"
+        onChange={(v) => setPhoneNumber(v ?? '')}
+        withCountryCallingCode={false}
+        useNationalFormatForDefaultCountryValue={false}
+        international={false}
       />
     </div>
   );
 };
 
-export default PhoneInput;
+export default PhoneInputComponent;

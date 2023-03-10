@@ -1,4 +1,4 @@
-import PhoneInput from '../../components/PhoneInput';
+import PhoneInputComponent from '../../components/PhoneInput';
 import './phone-login.css';
 
 const PhoneLogin = () => {
@@ -14,7 +14,7 @@ const PhoneLogin = () => {
         <p className="__step-description">Enter the phone number for your account.</p>
       </div>
 
-      <PhoneInput />
+      <PhoneInputComponent />
 
       {/* Action Button */}
     </>
