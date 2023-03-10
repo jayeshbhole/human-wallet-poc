@@ -1,8 +1,14 @@
 import { Menu, Transition } from '@headlessui/react';
-import { Fragment, ReactNode, useCallback, useState } from 'react';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import { CountryCode, getCountries, getCountryCallingCode } from 'libphonenumber-js/max';
 import Flags from 'country-flag-icons/react/3x2';
+import {
+  AsYouType,
+  CountryCode,
+  formatIncompletePhoneNumber,
+  getCountries,
+  getCountryCallingCode,
+} from 'libphonenumber-js/max';
+import { Fragment, useCallback, useState } from 'react';
+import formatAsYouType from '../utils/formatAsYouType';
 
 const countries = getCountries();
 
@@ -19,48 +25,43 @@ const FlagIcon = ({ code, className }: { code: string; className: string }) => {
 
 const PhoneInput = () => {
   const [countryCode, setCountryCode] = useState<CountryCode>('US');
-  const [typedDialCode, setTypedDialCode] = useState('1');
+  const [dialCode, setDialCode] = useState('1');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
-  const handleCountryCodeBlur = useCallback(() => {
-    if (typedDialCode === getCountryCallingCode(countryCode)) return;
-    const countryDialCode = typedDialCode;
-
-    const country = countries.find((country) => {
-      const countryCallingCode = getCountryCallingCode(country);
-      return countryCallingCode === countryDialCode;
-    });
-    if (country) {
+  const handleCountrySelect = useCallback(
+    (country: CountryCode) => {
       setCountryCode(country);
-      setTypedDialCode(getCountryCallingCode(country as CountryCode));
-    } else {
-      setTypedDialCode('1');
-      setCountryCode('US');
-    }
-  }, [countries, setCountryCode, setTypedDialCode, typedDialCode]);
+      setDialCode(getCountryCallingCode(country));
+      setPhoneNumber((num) => formatAsYouType(countryCode, num));
+    },
+    [countryCode, setCountryCode, setDialCode, setPhoneNumber]
+  );
 
-  const handleCountrySelect = (country: CountryCode) => {
-    setCountryCode(country);
-    setTypedDialCode(getCountryCallingCode(country));
-  };
+  const handlePhoneInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const number = e.target.value;
+      setPhoneNumber(formatAsYouType(countryCode, number));
+    },
+    [countryCode, setPhoneNumber]
+  );
 
   return (
-    <div className="w-full flex items-center">
+    <div className="__input-phone w-full flex gap-4 items-center">
       {/* country select */}
       <Menu
         as="div"
         className="relative">
         <Menu.Button className="flex items-center gap-1">
-          <ChevronDownIcon
-            className="h-5 w-5"
-            aria-hidden="true"
-          />
           {/* country flag */}
-          <div className="h-6 w-8">
+          <div className="h-5">
             <FlagIcon
-              className="h-6 w-8 "
+              className="h-5"
               code={countryCode}
             />
           </div>
+
+          {/* country dial code */}
+          <span className="whitespace-nowrap text-lg">+ {dialCode}</span>
         </Menu.Button>
 
         <Transition
@@ -94,20 +95,15 @@ const PhoneInput = () => {
         </Transition>
       </Menu>
 
-      {/* inputs */}
-      <div className="flex w-full">
-        {/* Country code. editable element */}
-        <input
-          className="w-[5ch]"
-          name="countryDialCode"
-          type="number"
-          onChange={(e) => {
-            setTypedDialCode(e.target.value);
-          }}
-          onBlur={handleCountryCodeBlur}
-          value={typedDialCode}
-        />
-      </div>
+      {/* phone number input */}
+      <input
+        className="w-full tracking-widest font-[500] placeholder:font-[500] text-lg"
+        name="countryDialCode"
+        type="text"
+        onChange={handlePhoneInputChange}
+        value={phoneNumber}
+        placeholder="(000) 000-0000"
+      />
     </div>
   );
 };
