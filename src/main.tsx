@@ -6,6 +6,7 @@ import ErrorPage from './pages/Error';
 import Landing from './pages/Landing';
 import PhoneLogin from './pages/PhoneLogin';
 import LoadingSplashScreen from './routes';
+import OnboardingLayout from './routes/Onboarding';
 
 const router = createBrowserRouter([
   {
@@ -15,7 +16,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/onboarding',
-    element: <Outlet />,
+    element: <OnboardingLayout />,
     children: [
       { path: '', element: <Landing /> },
       { path: 'phone', element: <PhoneLogin /> },

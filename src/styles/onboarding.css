@@ -1,0 +1,20 @@
+.onboarding {
+  @apply px-6 pt-4 flex flex-col h-full w-full gap-8;
+}
+.onboarding .__header {
+  @apply grid grid-cols-[4rem_1fr_4rem] w-full;
+}
+.onboarding .__back-button {
+  @apply rounded-xl text-black/40 flex justify-center items-center border-[1.5px] h-8 w-8 hover:text-black/70 border-black/40 hover:border-black/70;
+}
+
+.onboarding .__step-heading {
+  @apply font-[600] text-2xl text-black/50;
+}
+.onboarding .__step-heading .emphasis {
+  @apply text-black;
+}
+
+.onboarding .__step-description {
+  @apply text-black/50;
+}

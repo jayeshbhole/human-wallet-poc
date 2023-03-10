@@ -54,7 +54,6 @@ const PhoneInput = () => {
             className="h-5 w-5"
             aria-hidden="true"
           />
-
           {/* country flag */}
           <div className="h-6 w-8">
             <FlagIcon
