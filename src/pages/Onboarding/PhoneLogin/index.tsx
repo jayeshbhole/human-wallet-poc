@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import PhoneInput from '../../../components/PhoneInput';
 import './phone-login.css';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { OnboardingContext, OnboardingStep } from '../../../contexts/OnboardingContext';
 import OTPInput from '../../../components/OTPInput';
 
@@ -34,12 +34,12 @@ const Heading = ({ step, phoneNumber }: { step: string | undefined; phoneNumber:
 };
 
 const PhoneLogin = () => {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const { firebaseUser, handlePhoneSubmit, handleVerifyOTP } = useContext(OnboardingContext);
+
+  const [phoneNumber, setPhoneNumber] = useState(firebaseUser?.phoneNumber || '');
   const [otp, setOTP] = useState('');
 
   const { step } = useParams();
-
-  const { handlePhoneSubmit, handleVerifyOTP } = useContext(OnboardingContext);
 
   const handleAction = () => {
     if (step === OnboardingStep.PHONE_INPUT) {
@@ -48,6 +48,12 @@ const PhoneLogin = () => {
       handleVerifyOTP(otp);
     }
   };
+
+  useEffect(() => {
+    if (firebaseUser?.phoneNumber) {
+      setPhoneNumber(firebaseUser?.phoneNumber || '');
+    }
+  }, [firebaseUser]);
 
   return (
     <>

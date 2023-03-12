@@ -11,6 +11,8 @@ import OnboardingContextProvider from './contexts/OnboardingContext';
 import FinishOnboarding from './pages/Onboarding/FinishOnboarding';
 import SelectPin from './pages/Onboarding/SelectPin';
 import SelectUsername from './pages/Onboarding/SelectUsername';
+import RecoverWeb3Auth from './pages/Onboarding/LoadWeb3Auth';
+import FetchAccounts from './pages/Onboarding/FetchAccounts';
 
 const router = createBrowserRouter([
   {
@@ -29,6 +31,8 @@ const router = createBrowserRouter([
     children: [
       { path: '', element: <Landing />, index: true },
       { path: 'phone/:step', element: <PhoneLogin /> },
+      { path: 'web3Auth', element: <RecoverWeb3Auth /> },
+      { path: 'fetchAccounts', element: <FetchAccounts /> },
       { path: 'select-username', element: <SelectUsername /> },
       { path: 'select-pin', element: <SelectPin /> },
       { path: 'final', element: <FinishOnboarding /> },

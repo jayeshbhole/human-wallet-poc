@@ -1,10 +1,12 @@
-import { Dispatch, SetStateAction, createRef, useMemo, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, createRef, useContext, useMemo, useRef, useState } from 'react';
 import Keypad from './Keypad';
+import { OnboardingContext } from '../contexts/OnboardingContext';
 
 const RE_DIGIT = new RegExp(/^\d+$/);
 
 const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateAction<string>> }) => {
   const onChange = (value: string) => setOTP(value);
+  const { requestOTP, firebaseUser, canResendOTP } = useContext(OnboardingContext);
 
   const valueItems = useMemo(() => {
     const valueArray = value.split('');
@@ -125,10 +127,13 @@ const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateA
     }
   };
 
+  const handleResendOTP = () =>
+    firebaseUser?.phoneNumber ? requestOTP(firebaseUser.phoneNumber) : console.error('no phone number');
+
   return (
     <>
       {/* OTP is 6 digits */}
-      <div className={`__input-verify w-full flex items-center`}>
+      <div className={`__input-verify w-full flex items-center flex-col`}>
         {/* OTP input */}
         <div className="__otp-group">
           {valueItems.map((digit, idx) => (
@@ -147,6 +152,16 @@ const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateA
               ref={targetRefs[idx]}
             />
           ))}
+        </div>
+
+        {/* resend */}
+        <div className="__resend">
+          <button
+            onClick={handleResendOTP}
+            disabled={!canResendOTP}
+            className="text-sm hover:cursor-pointer mt-4 text-gray-500 underline-offset-2 underline disabled:cursor-not-allowed">
+            Resend OTP
+          </button>
         </div>
       </div>
 
