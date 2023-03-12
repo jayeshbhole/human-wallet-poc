@@ -5,7 +5,7 @@ import ErrorPage from './pages/Error';
 import Landing from './pages/Landing';
 import PhoneLogin from './pages/Onboarding/PhoneLogin';
 import LoadingSplashScreen from './routes';
-import OnboardingLayout from './routes/Onboarding';
+import OnboardingLayout from './pages/Onboarding/Layout';
 import './styles/index.css';
 import OnboardingContextProvider from './contexts/OnboardingContext';
 import FinishOnboarding from './pages/Onboarding/FinishOnboarding';
@@ -32,6 +32,9 @@ const router = createBrowserRouter([
       { path: 'select-username', element: <SelectUsername /> },
       { path: 'select-pin', element: <SelectPin /> },
       { path: 'final', element: <FinishOnboarding /> },
+      // google-login
+      // select-account
+      // final
     ],
   },
 ]);
