@@ -32,11 +32,11 @@
 }
 
 .__keypad {
-  @apply grid grid-cols-3 gap-8 items-center mt-10;
+  @apply grid grid-cols-3 gap-4 items-center mt-10;
 }
 
 .__keypad .__keypad-button {
-  @apply text-lg p-4 leading-none flex justify-center items-center justify-self-center;
+  @apply text-lg leading-none flex justify-center items-center justify-self-center;
   @apply hover:text-black/90 hover:bg-black/10 disabled:cursor-not-allowed disabled:opacity-50;
-  @apply rounded-xl w-[6ch] h-[6ch] text-black/50 font-[600]  bg-black/5;
+  @apply rounded-xl w-[5ch] h-[5ch] text-black/50 font-[600]  bg-black/5;
 }
