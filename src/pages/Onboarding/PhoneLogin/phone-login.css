@@ -4,7 +4,7 @@
 
 .__input-phone {
   transition: all 0.2s ease-in-out;
-  @apply border-b-2 border-black/10 py-1;
+  @apply border-b-2 border-black/10 py-1 mt-auto;
   @apply focus-within:border-black/30;
 }
 
@@ -16,4 +16,27 @@
 }
 .__input-phone.valid {
   @apply focus-within:border-green-900/50 border-green-900/50;
+}
+
+.__input-verify {
+  @apply mt-auto;
+}
+
+.__otp-group {
+  @apply flex w-full justify-between gap-4;
+}
+
+.__otp-group .__otp-input {
+  @apply w-1/6 text-2xl text-black/70 font-[500] bg-transparent placeholder:font-[500] text-center border-b-2 border-black/10;
+  @apply focus:border-black/30 focus-visible:outline-none;
+}
+
+.__keypad {
+  @apply grid grid-cols-3 gap-8 items-center mt-10;
+}
+
+.__keypad .__keypad-button {
+  @apply text-lg p-4 leading-none flex justify-center items-center justify-self-center;
+  @apply hover:text-black/90 hover:bg-black/10 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply rounded-xl w-[6ch] h-[6ch] text-black/50 font-[600]  bg-black/5;
 }

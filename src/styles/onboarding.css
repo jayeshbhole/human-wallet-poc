@@ -20,5 +20,5 @@
 }
 
 .onboarding .__action-button {
-  @apply w-full rounded-xl font-[600] py-3 text-lg text-black bg-slate-200 hover:bg-slate-300 mt-auto;
+  @apply w-full rounded-xl font-[600] py-3 text-lg text-black bg-slate-200/75 hover:bg-slate-200;
 }

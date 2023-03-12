@@ -1,9 +1,10 @@
 import { Menu, Transition } from '@headlessui/react';
 import Flags from 'country-flag-icons/react/3x2';
 import { CountryCode, getCountries, getCountryCallingCode, isPossiblePhoneNumber } from 'libphonenumber-js/min';
-import { Fragment, useCallback, useState } from 'react';
+import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
 import PhoneInput from 'react-phone-number-input/input';
 import formatAsYouType from '../utils/formatAsYouType';
+import Keypad from './Keypad';
 
 const countries = getCountries();
 
@@ -18,10 +19,17 @@ const FlagIcon = ({ code, className }: { code: string; className: string }) => {
   );
 };
 
-const PhoneInputComponent = () => {
+const PhoneInputComponent = ({
+  phoneNumber,
+  setPhoneNumber,
+}: {
+  phoneNumber: string;
+  setPhoneNumber: Dispatch<SetStateAction<string>>;
+}) => {
   const [countryCode, setCountryCode] = useState<CountryCode>('US');
   const [dialCode, setDialCode] = useState('1');
-  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCountrySelect = useCallback(
     (country: CountryCode) => {
@@ -41,7 +49,7 @@ const PhoneInputComponent = () => {
         {/* country select */}
         <Menu
           as="div"
-          className="relative">
+          className="relative z-10">
           <Menu.Button className="flex items-center gap-1">
             {/* country flag */}
             <div className="h-5">
@@ -95,24 +103,12 @@ const PhoneInputComponent = () => {
           withCountryCallingCode={false}
           useNationalFormatForDefaultCountryValue={false}
           international={false}
+          ref={inputRef}
         />
       </div>
 
       {/* keypad */}
-      {/* <div className="grid grid-cols-3 justify-center items-center">
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">1</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">2</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">3</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">4</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">5</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">6</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">7</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">8</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">9</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">*</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">0</button>
-        <button className="w-12 h-12 rounded-lg bg-primaryText/10 text-black/70 font-[500] text-lg">#</button>
-      </div> */}
+      <Keypad disabled />
     </>
   );
 };
