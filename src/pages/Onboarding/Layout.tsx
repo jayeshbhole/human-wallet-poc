@@ -1,6 +1,6 @@
 import { ChevronLeftIcon } from '@heroicons/react/20/solid';
 import { Outlet } from 'react-router-dom';
-import '../styles/onboarding.css';
+import '../../styles/onboarding.css';
 
 const OnboardingLayout = () => {
   return (
