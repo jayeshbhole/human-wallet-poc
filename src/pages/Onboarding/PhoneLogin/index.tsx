@@ -1,4 +1,4 @@
-import PhoneInputComponent from '../../components/PhoneInput';
+import PhoneInputComponent from '../../../components/PhoneInput';
 import './phone-login.css';
 
 const PhoneLogin = () => {
@@ -17,6 +17,7 @@ const PhoneLogin = () => {
       <PhoneInputComponent />
 
       {/* Action Button */}
+      <button className="__action-button">Continue</button>
     </>
   );
 };

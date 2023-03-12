@@ -9,7 +9,7 @@
 }
 
 .__input-phone .__number-input {
-  @apply w-[20ch] tracking-[0.15em] ml-auto text-black/70 font-[500] placeholder:font-[500] text-lg;
+  @apply w-full pl-6 tracking-[0.125em] ml-auto text-black/70 font-[500] placeholder:font-[500] text-2xl;
 }
 .__input-phone.error {
   @apply border-red-500/50;

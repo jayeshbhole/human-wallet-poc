@@ -52,7 +52,7 @@ const PhoneInputComponent = () => {
             </div>
 
             {/* country dial code */}
-            <span className="whitespace-nowrap text-lg text-black/70 font-[500]">+ {dialCode}</span>
+            <span className="whitespace-nowrap text-2xl text-black/70 font-[500] ml-2">+ {dialCode}</span>
           </Menu.Button>
 
           <Transition
