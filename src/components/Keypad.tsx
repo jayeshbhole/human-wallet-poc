@@ -1,47 +1,82 @@
+import { Box, Button, Grid, Icon } from '@chakra-ui/react';
 import { BackspaceIcon } from '@heroicons/react/24/outline';
-import React from 'react';
 
-const Keypad = ({ onKeypadClick, disabled }: { onKeypadClick?: (value: string) => void; disabled?: boolean }) => {
+const KeypadButton = ({
+  value,
+  onKeypadClick,
+  disabled,
+}: {
+  value: string;
+  onKeypadClick: (value: string) => void;
+  disabled?: boolean;
+}) => {
   return (
-    <div className="__keypad">
-      {Array.from({ length: 10 }).map((_, idx) => {
-        if (idx === 0) {
-          return;
-        }
+    <Button
+      variant="ghost"
+      isDisabled={disabled}
+      onClick={(e) => {
+        e.preventDefault();
+        onKeypadClick(value);
+      }}
+      fontSize="xl"
+      rounded="xl"
+      w="5ch"
+      h="5ch"
+      color="blackAlpha.600"
+      fontWeight={600}
+      bg="blackAlpha.50"
+      _hover={{
+        color: 'blackAlpha.900',
+        bg: 'blackAlpha.100',
+      }}
+      _disabled={{
+        opacity: 0.5,
+        cursor: 'not-allowed',
+      }}
+      justifySelf="center">
+      {value === 'backspace' ? (
+        <Icon
+          as={BackspaceIcon}
+          h={6}
+          w={6}
+        />
+      ) : (
+        value
+      )}
+    </Button>
+  );
+};
 
+const Keypad = ({ onKeypadClick, disabled }: { onKeypadClick: (value: string) => void; disabled?: boolean }) => {
+  return (
+    <Grid
+      className="__keypad"
+      templateColumns="repeat(3, 1fr)"
+      gap={4}
+      alignItems="center"
+      mt={4}>
+      {Array.from({ length: 9 }).map((_, idx) => {
         return (
-          <button
-            key={idx}
+          <KeypadButton
+            key={idx + 1}
+            value={(idx + 1).toString()}
+            onKeypadClick={onKeypadClick}
             disabled={disabled}
-            onClick={(e) => {
-              e.preventDefault();
-              onKeypadClick && onKeypadClick(idx.toString());
-            }}
-            className="__keypad-button">
-            {idx}
-          </button>
+          />
         );
       })}
       <div></div>
-      <button
-        className="__keypad-button"
+      <KeypadButton
+        value="0"
+        onKeypadClick={onKeypadClick}
         disabled={disabled}
-        onClick={(e) => {
-          e.preventDefault();
-          onKeypadClick && onKeypadClick('0');
-        }}>
-        0
-      </button>
-      <button
-        className="__keypad-button"
+      />
+      <KeypadButton
+        value="backspace"
+        onKeypadClick={onKeypadClick}
         disabled={disabled}
-        onClick={(e) => {
-          e.preventDefault();
-          onKeypadClick && onKeypadClick('backspace');
-        }}>
-        <BackspaceIcon className="h-6 w-6" />
-      </button>
-    </div>
+      />
+    </Grid>
   );
 };
 

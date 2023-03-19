@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, createRef, useContext, useMemo, useRef, useState } from 'react';
 import Keypad from './Keypad';
 import { OnboardingContext } from '../contexts/OnboardingContext';
+import { Box, Button, Input } from '@chakra-ui/react';
 
 const RE_DIGIT = new RegExp(/^\d+$/);
 
@@ -132,38 +133,85 @@ const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateA
 
   return (
     <>
-      {/* OTP is 6 digits */}
-      <div className={`__input-verify w-full flex items-center flex-col`}>
+      <Box
+        w="full"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        flexDirection="column"
+        mt="auto">
         {/* OTP input */}
-        <div className="__otp-group">
+        <Box
+          display="grid"
+          gridTemplateColumns="repeat(6, 1fr)"
+          gridGap={4}>
           {valueItems.map((digit, idx) => (
-            <input
+            <Input
               key={idx}
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
               pattern="\d{1}"
               maxLength={6}
-              className="__otp-input"
               value={digit}
               onChange={(e) => inputOnChange(e, idx)}
               onKeyDown={inputOnKeyDown}
               onFocus={inputOnFocus}
               ref={targetRefs[idx]}
+              // chakra ui
+              variant="unstyled"
+              fontSize={'2xl'}
+              fontWeight={500}
+              color="blackAlpha.700"
+              textAlign="center"
+              borderBottomWidth={2}
+              borderBottomColor="blackAlpha.100"
+              rounded="none"
+              _focus={{
+                borderBottomColor: 'blackAlpha.300',
+                outline: 'none',
+              }}
+              _focusVisible={{
+                outline: 'none',
+              }}
+              _placeholder={{
+                fontWeight: 500,
+              }}
+              _hover={{
+                cursor: 'text',
+              }}
+              _disabled={{
+                cursor: 'not-allowed',
+                opacity: 0.5,
+              }}
             />
           ))}
-        </div>
+        </Box>
 
         {/* resend */}
-        <div className="__resend">
-          <button
+        <Box>
+          <Button
+            variant="link"
             onClick={handleResendOTP}
             disabled={!canResendOTP}
-            className="text-sm hover:cursor-pointer mt-4 text-gray-500 underline-offset-2 underline disabled:cursor-not-allowed">
+            // className="text-sm hover:cursor-pointer mt-4 text-gray-500 underline-offset-2 underline disabled:cursor-not-allowed">
+            mt="4"
+            fontSize="sm"
+            color="gray.500"
+            fontWeight="normal"
+            _hover={{
+              cursor: 'pointer',
+            }}
+            _disabled={{
+              cursor: 'not-allowed',
+              opacity: 0.5,
+            }}
+            textDecoration="underline"
+            textUnderlineOffset={2}>
             Resend OTP
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Box>
+      </Box>
 
       {/* keypad */}
       <Keypad onKeypadClick={handleKeyPadClick} />

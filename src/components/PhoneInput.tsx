@@ -1,21 +1,61 @@
-import { Menu, Transition } from '@headlessui/react';
+import { Box, Flex, Icon, Input, Menu, MenuButton, MenuItem, MenuList, Spacer, Text } from '@chakra-ui/react';
 import Flags from 'country-flag-icons/react/3x2';
 import { CountryCode, getCountries, getCountryCallingCode, isPossiblePhoneNumber } from 'libphonenumber-js/min';
-import { Dispatch, Fragment, SetStateAction, useCallback, useRef, useState } from 'react';
+import { Dispatch, memo, SetStateAction, useCallback, useRef, useState } from 'react';
 import PhoneInput from 'react-phone-number-input/input';
 import formatAsYouType from '../utils/formatAsYouType';
 import Keypad from './Keypad';
 
 const countries = getCountries();
 
-const FlagIcon = ({ code, className }: { code: string; className: string }) => {
-  // @ts-ignore
-  const TempFlag = Flags[code];
+const CountryMenuItem = ({
+  country,
+  handleCountrySelect,
+}: {
+  country: CountryCode;
+  handleCountrySelect: (country: CountryCode) => void;
+}) => {
   return (
-    <TempFlag
-      style={{ borderRadius: '0.25rem' }}
-      className={className}
-    />
+    <MenuItem
+      key={country}
+      display="flex"
+      alignItems="center"
+      gap={2}
+      onClick={() => handleCountrySelect(country)}
+      fontSize="lg"
+      fontWeight={500}
+      color="blackAlpha.700">
+      <Icon
+        as={Flags[country]}
+        h={6}
+        w={8}
+        rounded="0.25rem"
+      />
+
+      <span>{country}</span>
+      <Spacer />
+      <span>+ {getCountryCallingCode(country as CountryCode)}</span>
+    </MenuItem>
+  );
+};
+
+const CountryMenu = ({ handleCountrySelect }: { handleCountrySelect: (country: CountryCode) => void }) => {
+  return (
+    <MenuList
+      maxH="20rem"
+      overflow="scroll"
+      w="35ch"
+      left={0}
+      mt={2}>
+      {countries.map((country) => (
+        <CountryMenuItem
+          key={country}
+          country={country}
+          handleCountrySelect={handleCountrySelect}
+        />
+      ))}
+      {/* </Menu.Items> */}
+    </MenuList>
   );
 };
 
@@ -44,71 +84,89 @@ const PhoneInputComponent = ({
 
   return (
     <>
-      <div
-        className={`__input-phone w-full flex items-center ${phoneNumber ? (isInputValid ? 'valid' : 'error') : ''}`}>
+      <Flex
+        w="full"
+        alignItems="center"
+        outline="none"
+        bg="bg.primary"
+        borderBottom="2px"
+        borderColor={phoneNumber ? (isInputValid ? 'green.300' : 'red.500') : 'blackAlpha.100'}
+        py={1}
+        mb="auto"
+        _focusWithin={{
+          borderColor: phoneNumber ? (isInputValid ? 'green.300' : 'orange.500') : 'blackAlpha.300',
+        }}
+        transition="all 0.2s ease-in-out">
         {/* country select */}
-        <Menu
-          as="div"
-          className="relative z-10">
-          <Menu.Button className="flex items-center gap-1">
-            {/* country flag */}
-            <div className="h-5">
-              <FlagIcon
-                className="h-5"
-                code={countryCode}
+        <Menu isLazy>
+          <MenuButton>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap={2}
+              p="1"
+              rounded="md"
+              _hover={{
+                background: 'blackAlpha.100',
+              }}
+              _active={{
+                background: 'blackAlpha.100',
+              }}>
+              {/* country flag */}
+              <Icon
+                w="9"
+                h="6"
+                rounded="0.25rem"
+                as={Flags[countryCode]}
               />
-            </div>
 
-            {/* country dial code */}
-            <span className="whitespace-nowrap text-2xl text-black/70 font-[500] ml-2">+ {dialCode}</span>
-          </Menu.Button>
+              {/* country dial code */}
+              <Text
+                as="span"
+                whiteSpace="nowrap"
+                fontSize="2xl"
+                color="blackAlpha.800"
+                fontWeight={500}>
+                + {dialCode}
+              </Text>
+            </Box>
+          </MenuButton>
 
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-100"
-            enterFrom="transform opacity-0 scale-95"
-            enterTo="transform opacity-100 scale-100"
-            leave="transition ease-in duration-75"
-            leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95">
-            <Menu.Items className="max-h-[20rem] overflow-scroll w-[30ch] absolute left-0 mt-2 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {countries.map((country) => (
-                <Menu.Item key={country}>
-                  <button
-                    className="flex items-center w-full px-4 py-2 text-sm text-left gap-8"
-                    onClick={() => handleCountrySelect(country)}>
-                    <div className="h-6 w-8">
-                      <FlagIcon
-                        className="h-6 w-8 "
-                        code={country}
-                      />
-                    </div>
-                    <span className="flex justify-between w-full">
-                      <span>{country}</span>
-                      <span>+ {getCountryCallingCode(country as CountryCode)}</span>
-                    </span>
-                  </button>
-                </Menu.Item>
-              ))}
-            </Menu.Items>
-          </Transition>
+          <CountryMenu handleCountrySelect={handleCountrySelect} />
         </Menu>
 
         {/* phone number input */}
-        <PhoneInput
-          className={`__number-input`}
+        <Input
+          as={PhoneInput}
+          // chakra input props
+          w="full"
+          pl={6}
+          letterSpacing="0.125em"
+          ml="auto"
+          color="blackAlpha.800"
+          fontWeight={500}
+          fontSize="2xl"
+          _placeholder={{
+            fontWeight: 500,
+          }}
+          variant="unstyled"
+          // phone input props
           country={countryCode}
           value={phoneNumber}
-          onChange={(v) => setPhoneNumber(v ?? '')}
           withCountryCallingCode={false}
           useNationalFormatForDefaultCountryValue={false}
           international={false}
+          // @ts-ignore
+          onChange={(v) => setPhoneNumber(v ?? '')}
           ref={inputRef}
         />
-      </div>
+      </Flex>
 
       {/* keypad */}
-      <Keypad disabled />
+      <Keypad
+        onKeypadClick={() => {}}
+        disabled
+      />
     </>
   );
 };

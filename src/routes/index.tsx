@@ -1,3 +1,4 @@
+import { Box, Button } from '@chakra-ui/react';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
@@ -5,14 +6,18 @@ const LoadingSplashScreen = () => {
   const [loading, setLoading] = useState(true);
 
   return loading ? (
-    <div>
-      LoadingSplashScreen <br />
-      <button
-        className="button bg-[#8BEBB2]"
-        onClick={() => setLoading(false)}>
+    <Box
+      display="flex"
+      height="100%"
+      flexDirection="column"
+      justifyContent="space-between">
+      LoadingSplashScreen
+      <Button
+        onClick={() => setLoading(false)}
+        backgroundColor={'#8BEBB2'}>
         Set loading false
-      </button>
-    </div>
+      </Button>
+    </Box>
   ) : (
     <Navigate to="onboarding" />
   );

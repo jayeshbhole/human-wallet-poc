@@ -1,18 +1,20 @@
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import OnboardingContextProvider from './contexts/OnboardingContext';
 import ErrorPage from './pages/Error';
 import Landing from './pages/Landing';
-import PhoneLogin from './pages/Onboarding/PhoneLogin';
-import LoadingSplashScreen from './routes';
-import OnboardingLayout from './pages/Onboarding/Layout';
-import './styles/index.css';
-import OnboardingContextProvider from './contexts/OnboardingContext';
+import FetchAccounts from './pages/Onboarding/FetchAccounts';
 import FinishOnboarding from './pages/Onboarding/FinishOnboarding';
+import OnboardingLayout from './pages/Onboarding/Layout';
+import RecoverWeb3Auth from './pages/Onboarding/LoadWeb3Auth';
+import PhoneLogin from './pages/Onboarding/PhoneLogin';
 import SelectPin from './pages/Onboarding/SelectPin';
 import SelectUsername from './pages/Onboarding/SelectUsername';
-import RecoverWeb3Auth from './pages/Onboarding/LoadWeb3Auth';
-import FetchAccounts from './pages/Onboarding/FetchAccounts';
+import LoadingSplashScreen from './routes';
+import './styles/index.css';
+import { theme } from './theme';
 
 const router = createBrowserRouter([
   {
@@ -45,8 +47,13 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <div className="app shadow-2xl shadow-black/40 bg-primaryBg text-primaryText">
-      <RouterProvider router={router} />
-    </div>
+    <ChakraProvider theme={theme}>
+      <Box
+        className="app"
+        shadow={'2xl'}
+        bg="bg.primary">
+        <RouterProvider router={router} />
+      </Box>
+    </ChakraProvider>
   </React.StrictMode>
 );
