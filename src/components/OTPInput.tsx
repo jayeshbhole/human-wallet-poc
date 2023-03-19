@@ -194,7 +194,6 @@ const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateA
             variant="link"
             onClick={handleResendOTP}
             disabled={!canResendOTP}
-            // className="text-sm hover:cursor-pointer mt-4 text-gray-500 underline-offset-2 underline disabled:cursor-not-allowed">
             mt="4"
             fontSize="sm"
             color="gray.500"

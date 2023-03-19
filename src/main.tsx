@@ -13,7 +13,6 @@ import PhoneLogin from './pages/Onboarding/PhoneLogin';
 import SelectPin from './pages/Onboarding/SelectPin';
 import SelectUsername from './pages/Onboarding/SelectUsername';
 import LoadingSplashScreen from './routes';
-import './styles/index.css';
 import { theme } from './theme';
 
 const router = createBrowserRouter([
