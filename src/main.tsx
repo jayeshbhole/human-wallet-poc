@@ -9,7 +9,8 @@ import FetchAccounts from './pages/Onboarding/FetchAccounts';
 import FinishOnboarding from './pages/Onboarding/FinishOnboarding';
 import OnboardingLayout from './pages/Onboarding/Layout';
 import RecoverWeb3Auth from './pages/Onboarding/LoadWeb3Auth';
-import PhoneLogin from './pages/Onboarding/PhoneLogin';
+import PhoneLoginInput from './pages/Onboarding/PhoneLogin/Input';
+import PhoneLoginVerify from './pages/Onboarding/PhoneLogin/Verify';
 import SelectPin from './pages/Onboarding/SelectPin';
 import SelectUsername from './pages/Onboarding/SelectUsername';
 import LoadingSplashScreen from './routes';
@@ -31,7 +32,8 @@ const router = createBrowserRouter([
 
     children: [
       { path: '', element: <Landing />, index: true },
-      { path: 'phone/:step', element: <PhoneLogin /> },
+      { path: 'phone-input', element: <PhoneLoginInput /> },
+      { path: 'phone-verify', element: <PhoneLoginVerify /> },
       { path: 'web3Auth', element: <RecoverWeb3Auth /> },
       { path: 'fetchAccounts', element: <FetchAccounts /> },
       { path: 'select-username', element: <SelectUsername /> },

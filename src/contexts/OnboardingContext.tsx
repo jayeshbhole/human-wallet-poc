@@ -18,7 +18,7 @@ export enum OnboardingStep {
   NONE = 'none',
   PHONE_INPUT = 'input',
   PHONE_VERIFY = 'verify',
-  USERNAME = 'username',
+  USERNAME = 'select-username',
   PIN = 'pin',
   CREATED = 'created',
   LOGIN = 'login',
@@ -43,8 +43,9 @@ interface OnboardingContext {
   handlePhoneSubmit: (phoneNumber: string) => void;
   handleVerifyOTP: (otp: string) => void;
   requestOTP: (phoneNumber: string) => Promise<ConfirmationResult | undefined>;
-  setWeb3AuthProvider: () => Promise<SafeEventEmitterProvider | undefined>;
+  initialiseWeb3AuthProvider: () => Promise<SafeEventEmitterProvider | undefined>;
   setWeb3AuthProviderAndNavigate: () => Promise<void>;
+  selectUsernameAndDeploy: (username: string) => Promise<void>;
 }
 
 export const OnboardingContext = createContext<OnboardingContext>({
@@ -59,8 +60,9 @@ export const OnboardingContext = createContext<OnboardingContext>({
   handlePhoneSubmit: (phoneNumber: string) => {},
   handleVerifyOTP: (otp: string) => {},
   requestOTP: (phoneNumber: string) => Promise.resolve(undefined),
-  setWeb3AuthProvider: () => Promise.resolve(undefined),
+  initialiseWeb3AuthProvider: () => Promise.resolve(undefined),
   setWeb3AuthProviderAndNavigate: () => Promise.resolve(),
+  selectUsernameAndDeploy: (username: string) => Promise.resolve(),
 });
 
 const web3AuthClientId = 'BP5aL_QCnyKdqyiDUCqmJRRGgqdh-FnqqkolYBKgJczUewBUZyimowuOvOTTFnDYniyp-LU46d7J8N2RpcpkiVc'; // get from https://dashboard.web3auth.io
@@ -80,7 +82,7 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
   const [mode, setMode] = useState<OnboardingMode>(OnboardingMode.NONE);
 
   const [web3authSFAuth, setWeb3authSFAuth] = useState<Web3Auth | null>(null);
-  const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
+  const [web3AuthProvider, setWeb3AuthProvider] = useState<SafeEventEmitterProvider | null>(null);
   const [ownerPubKey, setOwnerPubKey] = useState<string>('');
 
   const recaptchaContainer = useRef<HTMLDivElement>(null);
@@ -130,7 +132,7 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
           web3AuthNetwork: 'testnet',
         });
         setWeb3authSFAuth(web3authSfa);
-        setProvider(web3authSfa.provider);
+        setWeb3AuthProvider(web3authSfa.provider);
 
         web3authSfa.init();
       } catch (error) {
@@ -140,16 +142,6 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
 
     init();
   }, []);
-
-  // handlePhoneSubmit
-  const handlePhoneSubmit = async (phoneNumber: string) => {
-    if (!phoneNumber) {
-      throw new Error('Phone number is invalid');
-    }
-    await requestOTP(phoneNumber);
-    setStep(OnboardingStep.PHONE_VERIFY);
-    navigate('/onboarding/phone/verify');
-  };
 
   const requestOTP = useCallback(
     async (phoneNumber: string) => {
@@ -182,29 +174,45 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
     [applicationVerifier, setCanResendOTP, setConfirmationResult]
   );
 
+  // handlePhoneSubmit
+  const handlePhoneSubmit = useCallback(
+    () => async (phoneNumber: string) => {
+      if (!phoneNumber) {
+        throw new Error('Phone number is invalid');
+      }
+      await requestOTP(phoneNumber);
+      setStep(OnboardingStep.PHONE_VERIFY);
+      navigate('/onboarding/phone/verify');
+    },
+    [requestOTP, setStep, navigate]
+  );
+
   // handleVerifyOTP
-  const handleVerifyOTP = async (verificationCode: string) => {
-    if (!confirmationResult || !verificationCode) {
-      console.log('confirmationResult not initialized yet or verification code not entered');
-      return;
-    }
-    if (!web3authSFAuth) {
-      console.error('Web3Auth Single Factor Auth SDK not initialized yet');
-      return;
-    }
-    try {
-      // verify otp
-      const loginRes = await confirmationResult.confirm(verificationCode);
-      console.log('login details', loginRes);
+  const handleVerifyOTP = useCallback(
+    () => async (verificationCode: string) => {
+      if (!confirmationResult || !verificationCode) {
+        console.log('confirmationResult not initialized yet or verification code not entered');
+        return;
+      }
+      if (!web3authSFAuth) {
+        console.error('Web3Auth Single Factor Auth SDK not initialized yet');
+        return;
+      }
+      try {
+        // verify otp
+        const loginRes = await confirmationResult.confirm(verificationCode);
+        console.log('login details', loginRes);
 
-      setFirebaseUser(loginRes.user);
-      navigate('/onboarding/web3Auth');
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        setFirebaseUser(loginRes.user);
+        navigate('/onboarding/web3Auth');
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [confirmationResult, web3authSFAuth]
+  );
 
-  const setWeb3AuthProvider = useCallback(async () => {
+  const initialiseWeb3AuthProvider = useCallback(async () => {
     if (!firebaseUser || !web3authSFAuth) {
       console.error('Firebase/web3AuthSFA not initialized yet');
       return;
@@ -239,7 +247,7 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
     } else {
       console.log('provider already set. requesting private key');
 
-      setProvider(web3authSFAuth.provider);
+      setWeb3AuthProvider(web3authSFAuth.provider);
 
       // get accounts
       const accounts = await web3authSFAuth.provider.request({ method: 'eth_accounts' });
@@ -249,17 +257,33 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
       setOwnerPubKey(accounts?.[0]);
       return web3authSFAuth.provider;
     }
-  }, [firebaseUser, web3authSFAuth, setOwnerPubKey, setProvider]);
+  }, [firebaseUser, web3authSFAuth, setOwnerPubKey, setWeb3AuthProvider]);
 
   const setWeb3AuthProviderAndNavigate = useCallback(async () => {
     console.log('setWeb3AuthProviderAndNavigate');
-    const provider = await setWeb3AuthProvider();
+    const provider = await initialiseWeb3AuthProvider();
     if (provider) {
       navigate('/onboarding/fetchAccounts');
     }
   }, [setWeb3AuthProvider, setMode, navigate]);
 
-  // handleUsernameSubmit
+  const findDeployedAccounts = useCallback(async () => {
+    let accounts: string[] = [];
+    if (accounts) {
+      navigate('/onboarding/select-account');
+    } else {
+      navigate('/onboarding/select-username');
+    }
+  }, []);
+
+  const selectUsernameAndDeploy = useCallback(async () => {
+    if (!web3authSFAuth) {
+      console.error('Web3Auth Single Factor Auth SDK not initialized yet');
+      return;
+    }
+
+    web3AuthProvider;
+  }, [web3authSFAuth]);
   // handlePinSubmit
   // deployAccount
 
@@ -270,15 +294,16 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
         mode: OnboardingMode.NONE,
         canResendOTP,
         firebaseUser,
-        provider,
+        provider: web3AuthProvider,
         ownerPubKey,
         setStep: (step: number) => {},
         setMode: (mode: OnboardingStep) => {},
         handlePhoneSubmit,
         handleVerifyOTP,
-        setWeb3AuthProvider,
+        initialiseWeb3AuthProvider,
         setWeb3AuthProviderAndNavigate,
         requestOTP,
+        selectUsernameAndDeploy,
       }}>
       {children}
       <div

@@ -1,8 +1,9 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
-import { ReactNode } from 'react';
-import { OnboardingStep } from '../../contexts/OnboardingContext';
+import { ReactNode, useContext, useEffect, useState } from 'react';
+import { Outlet, RouteObject, useRoutes } from 'react-router-dom';
+import { OnboardingContext } from '../../contexts/OnboardingContext';
 
-const HeadingEmphasis = ({ children }: { children: ReactNode }) => {
+export const HeadingEmphasis = ({ children }: { children: ReactNode }) => {
   return (
     <Text
       as="span"
@@ -12,7 +13,7 @@ const HeadingEmphasis = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const StepTitle = ({ children }: { children: ReactNode }) => {
+export const StepTitle = ({ children }: { children: ReactNode }) => {
   return (
     <Heading
       className="__step-heading"
@@ -24,44 +25,23 @@ const StepTitle = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const StepDescription = ({ children }: { children: ReactNode }) => {
-  return <Text color="blackAlpha.600">{children}</Text>;
+export const StepDescription = ({ children }: { children: ReactNode }) => {
+  return (
+    <Text
+      color="blackAlpha.600"
+      maxW="80%">
+      {children}
+    </Text>
+  );
 };
 
-export const OnboardingStepHeading = ({ step, phoneNumber }: { step: string | undefined; phoneNumber: string }) => {
-  if (step === OnboardingStep.PHONE_INPUT) {
-    return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        gap={3}>
-        {/* step title */}
-        <StepTitle>
-          <>
-            What's your <br />
-            <HeadingEmphasis>Phone Number?</HeadingEmphasis>
-          </>
-        </StepTitle>
-        {/* step description */}
-        <StepDescription>Enter the phone number for your account.</StepDescription>
-      </Box>
-    );
-  } else if (step === OnboardingStep.PHONE_VERIFY) {
-    return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        gap={3}>
-        {/* step title */}
-        <StepTitle>
-          <>
-            <HeadingEmphasis>Verify</HeadingEmphasis> it is you
-          </>
-        </StepTitle>
-        {/* step description */}
-        <StepDescription>Enter the OTP sent to {phoneNumber}</StepDescription>
-      </Box>
-    );
-  }
-  return <>Wrong Step</>;
+export const HeadingBox = ({ children }: { children: ReactNode }) => {
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      gap={3}>
+      {children}
+    </Box>
+  );
 };

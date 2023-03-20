@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
-import { OnboardingContext } from '../../contexts/OnboardingContext';
+import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { OnboardingContext } from '../../contexts/OnboardingContext';
 
 const FetchAccounts = () => {
   const { provider, ownerPubKey } = useContext(OnboardingContext);
