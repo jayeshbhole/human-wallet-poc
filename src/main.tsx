@@ -50,10 +50,19 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
       <Box
-        className="app"
-        shadow={'2xl'}
-        bg="bg.primary">
-        <RouterProvider router={router} />
+        className="root-container"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        h="full"
+        w="full"
+        p={{ base: 0, md: 8 }}>
+        <Box
+          className="app"
+          shadow={'2xl'}
+          bg="bg.primary">
+          <RouterProvider router={router} />
+        </Box>
       </Box>
     </ChakraProvider>
   </React.StrictMode>

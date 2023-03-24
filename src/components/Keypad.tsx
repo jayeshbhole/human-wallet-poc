@@ -54,7 +54,7 @@ const Keypad = ({ onKeypadClick, disabled }: { onKeypadClick: (value: string) =>
       templateColumns="repeat(3, 1fr)"
       gap={4}
       alignItems="center"
-      mt={4}>
+      mt="auto">
       {Array.from({ length: 9 }).map((_, idx) => {
         return (
           <KeypadButton

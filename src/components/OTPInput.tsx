@@ -165,10 +165,10 @@ const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateA
               color="blackAlpha.700"
               textAlign="center"
               borderBottomWidth={2}
-              borderBottomColor="blackAlpha.100"
+              borderBottomColor="blackAlpha.400"
               rounded="none"
               _focus={{
-                borderBottomColor: 'blackAlpha.300',
+                borderBottomColor: 'blackAlpha.800',
                 outline: 'none',
               }}
               _focusVisible={{

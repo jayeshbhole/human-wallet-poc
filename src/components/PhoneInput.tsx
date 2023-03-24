@@ -88,13 +88,13 @@ const PhoneInputComponent = ({
         w="full"
         alignItems="center"
         outline="none"
-        bg="bg.primary"
+        bg="transparent"
         borderBottom="2px"
-        borderColor={phoneNumber ? (isInputValid ? 'green.300' : 'red.500') : 'blackAlpha.100'}
+        borderColor={phoneNumber ? (isInputValid ? 'green.300' : 'red.500') : 'blackAlpha.400'}
         py={1}
         mb="auto"
         _focusWithin={{
-          borderColor: phoneNumber ? (isInputValid ? 'green.300' : 'orange.500') : 'blackAlpha.300',
+          borderColor: phoneNumber ? (isInputValid ? 'green.300' : 'orange.500') : 'blackAlpha.800',
         }}
         transition="all 0.2s ease-in-out">
         {/* country select */}
