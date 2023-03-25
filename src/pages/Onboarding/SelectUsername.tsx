@@ -1,8 +1,8 @@
 import { Box, Input } from '@chakra-ui/react';
 import { useContext, useMemo, useState } from 'react';
-import { OnboardingActionButton } from '../../../components/Onboarding';
-import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../../components/Onboarding/headings';
-import { OnboardingContext } from '../../../contexts/OnboardingContext';
+import { OnboardingActionButton } from '../../components/Onboarding';
+import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../components/Onboarding/headings';
+import { OnboardingContext } from '../../contexts/OnboardingContext';
 
 const SelectUsername = () => {
   const [username, setUsername] = useState('');
@@ -77,7 +77,7 @@ const SelectUsername = () => {
       </Box>
 
       {/* Action Button */}
-      <OnboardingActionButton onClick={handleAction}>Continue</OnboardingActionButton>
+      <OnboardingActionButton onClick={handleAction}>Select Username</OnboardingActionButton>
     </>
   );
 };
