@@ -4,6 +4,7 @@ import { Web3Auth } from '@web3auth/single-factor-auth';
 import { ConfirmationResult, RecaptchaVerifier, User, signInWithPhoneNumber } from 'firebase/auth';
 import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { web3AuthClientId, chainConfig } from '../utils/constants';
 import { auth } from '../utils/firebase';
 
 export enum OnboardingMode {
@@ -64,18 +65,6 @@ export const OnboardingContext = createContext<OnboardingContext>({
   setWeb3AuthProviderAndNavigate: () => Promise.resolve(),
   selectUsernameAndDeploy: (username: string) => Promise.resolve(),
 });
-
-const web3AuthClientId = 'BP5aL_QCnyKdqyiDUCqmJRRGgqdh-FnqqkolYBKgJczUewBUZyimowuOvOTTFnDYniyp-LU46d7J8N2RpcpkiVc'; // get from https://dashboard.web3auth.io
-const verifier = 'wallet-firebase';
-const chainConfig = {
-  chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: '0x5',
-  rpcTarget: 'https://rpc.ankr.com/eth_goerli',
-  displayName: 'Goerli Testnet',
-  blockExplorer: 'https://goerli.etherscan.io',
-  ticker: 'ETH',
-  tickerName: 'Ethereum',
-};
 
 const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [step, setStep] = useState<OnboardingStep>(OnboardingStep.PHONE_INPUT);
