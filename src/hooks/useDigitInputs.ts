@@ -1,4 +1,4 @@
-import { createRef, Dispatch, SetStateAction, useContext, useMemo, useState } from 'react';
+import { createRef, Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 
 const RE_DIGIT = new RegExp(/^\d+$/);
 
@@ -24,7 +24,7 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
     return Array.from({ length: 6 }).map(() => createRef<HTMLInputElement>());
   }, []);
 
-  const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  const inputOnChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const target = e.target;
     let targetValue = target.value.trim();
     const isTargetValueDigit = RE_DIGIT.test(targetValue);
@@ -52,22 +52,22 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
 
       target.blur();
     }
-  };
-  const focusToNextInput = (target: HTMLElement) => {
+  }, []);
+  const focusToNextInput = useCallback((target: HTMLElement) => {
     const nextElementSibling = target.nextElementSibling as HTMLInputElement | null;
 
     if (nextElementSibling) {
       nextElementSibling.focus();
     }
-  };
-  const focusToPrevInput = (target: HTMLElement) => {
+  }, []);
+  const focusToPrevInput = useCallback((target: HTMLElement) => {
     const previousElementSibling = target.previousElementSibling as HTMLInputElement | null;
 
     if (previousElementSibling) {
       previousElementSibling.focus();
     }
-  };
-  const inputOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  }, []);
+  const inputOnKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement;
     const key = e.key;
     if (key === 'ArrowRight' || key === 'ArrowDown') {
@@ -94,8 +94,8 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
     if (targetValue === '') {
       focusToPrevInput(target);
     } else target.value = '';
-  };
-  const inputOnFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+  }, []);
+  const inputOnFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     const { target } = e;
     const prevInputEl = target.previousElementSibling as HTMLInputElement | null;
 
@@ -104,9 +104,9 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
     }
 
     target.setSelectionRange(0, target.value.length);
-  };
+  }, []);
 
-  const handleKeyPadClick = (value: string) => {
+  const handleKeyPadClick = useCallback((value: string) => {
     const lastInputIdx = valueItems.findIndex((item) => item === '') - 1;
 
     if (value === 'backspace') {
@@ -120,7 +120,7 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
       target.value = value;
       inputOnChange({ target, currentTarget: target } as any, lastInputIdx + 1);
     }
-  };
+  }, []);
 
   return {
     valueItems,
