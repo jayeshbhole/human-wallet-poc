@@ -24,35 +24,39 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
     return Array.from({ length: 6 }).map(() => createRef<HTMLInputElement>());
   }, []);
 
-  const inputOnChange = useCallback((e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
-    const target = e.target;
-    let targetValue = target.value.trim();
-    const isTargetValueDigit = RE_DIGIT.test(targetValue);
+  const inputOnChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+      const target = e.target;
+      let targetValue = target.value.trim();
+      const isTargetValueDigit = RE_DIGIT.test(targetValue);
 
-    if (!isTargetValueDigit && targetValue !== '') {
-      return;
-    }
-
-    targetValue = isTargetValueDigit ? targetValue : ' ';
-
-    const targetValueLength = targetValue.length;
-
-    if (targetValueLength === 1) {
-      const newValue = value.substring(0, idx) + targetValue + value.substring(idx + 1);
-
-      setValue(newValue);
-
-      if (!isTargetValueDigit) {
+      if (!isTargetValueDigit && targetValue !== '') {
         return;
       }
 
-      focusToNextInput(target);
-    } else if (targetValueLength === 6) {
-      setValue(targetValue);
+      targetValue = isTargetValueDigit ? targetValue : ' ';
 
-      target.blur();
-    }
-  }, []);
+      const targetValueLength = targetValue.length;
+
+      if (targetValueLength === 1) {
+        const newValue = value.substring(0, idx) + targetValue + value.substring(idx + 1);
+
+        setValue(newValue);
+
+        if (!isTargetValueDigit) {
+          return;
+        }
+
+        focusToNextInput(target);
+      } else if (targetValueLength === 6) {
+        setValue(targetValue);
+
+        target.blur();
+      }
+    },
+    [setValue, value]
+  );
+
   const focusToNextInput = useCallback((target: HTMLElement) => {
     const nextElementSibling = target.nextElementSibling as HTMLInputElement | null;
 
@@ -95,6 +99,7 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
       focusToPrevInput(target);
     } else target.value = '';
   }, []);
+
   const inputOnFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     const { target } = e;
     const prevInputEl = target.previousElementSibling as HTMLInputElement | null;
@@ -106,21 +111,24 @@ const useDigitInputs = ({ value, setValue }: { value: string; setValue: Dispatch
     target.setSelectionRange(0, target.value.length);
   }, []);
 
-  const handleKeyPadClick = useCallback((value: string) => {
-    const lastInputIdx = valueItems.findIndex((item) => item === '') - 1;
+  const handleKeyPadClick = useCallback(
+    (value: string) => {
+      const lastInputIdx = valueItems.findIndex((item) => item === '') - 1;
 
-    if (value === 'backspace') {
-      setValue((prev) => prev.slice(0, -1).slice(0, 6));
-      const target = targetRefs?.[lastInputIdx]?.current;
-      target?.focus();
-    } else {
-      const target = targetRefs?.[lastInputIdx + 1]?.current;
-      if (!target) return;
+      if (value === 'backspace') {
+        setValue((prev) => prev.slice(0, -1).slice(0, 6));
+        const target = targetRefs?.[lastInputIdx]?.current;
+        target?.focus();
+      } else {
+        const target = targetRefs?.[lastInputIdx + 1]?.current;
+        if (!target) return;
 
-      target.value = value;
-      inputOnChange({ target, currentTarget: target } as any, lastInputIdx + 1);
-    }
-  }, []);
+        target.value = value;
+        inputOnChange({ target, currentTarget: target } as any, lastInputIdx + 1);
+      }
+    },
+    [valueItems, setValue, targetRefs, inputOnChange]
+  );
 
   return {
     valueItems,
