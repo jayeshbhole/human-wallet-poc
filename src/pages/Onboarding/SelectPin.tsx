@@ -1,22 +1,88 @@
 import { Box, Flex, Icon, Input } from '@chakra-ui/react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { useContext, useState } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 import Keypad from '../../components/Keypad';
 import { OnboardingActionButton } from '../../components/Onboarding';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../components/Onboarding/headings';
-import { OnboardingContext } from '../../contexts/OnboardingContext';
 import useDigitInputs from '../../hooks/useDigitInputs';
-
-const RE_DIGIT = new RegExp(/^\d+$/);
 
 const SelectDevicePin = () => {
   const [pinValue, setPinValue] = useState('');
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const { selectUsernameAndDeploy } = useContext(OnboardingContext);
+  const [confirmPinValue, setConfirmPinValue] = useState('');
+
+  const [confirmPin, setConfirmPin] = useState(false);
+
+  const errorMessage = useMemo(() => {
+    if (confirmPin) {
+      if (confirmPinValue && pinValue !== confirmPinValue) {
+        return 'PINs do not match';
+      }
+    } else {
+      if (pinValue && pinValue.length < 6) {
+        return 'PIN must be 6 digits';
+      }
+    }
+    return '';
+  }, [pinValue, confirmPinValue, confirmPin]);
 
   const handleAction = () => {
-    selectUsernameAndDeploy(pinValue);
+    if (confirmPin) {
+      if (pinValue === confirmPinValue) {
+        //
+      }
+    } else {
+      if (pinValue.length === 6) {
+        setConfirmPin(true);
+      }
+    }
   };
+
+  return (
+    <>
+      <HeadingBox>
+        <StepTitle>
+          {confirmPin ? (
+            <>
+              Confirm <br />
+              <HeadingEmphasis>Device PIN</HeadingEmphasis>
+            </>
+          ) : (
+            <>
+              Create a <br />
+              <HeadingEmphasis>Device PIN</HeadingEmphasis>
+            </>
+          )}
+        </StepTitle>
+        {confirmPin ? (
+          <StepDescription>Confirm the device PIN.</StepDescription>
+        ) : (
+          <StepDescription>Create a PIN to secure your wallet on this device.</StepDescription>
+        )}
+      </HeadingBox>
+
+      {/* PIN Input */}
+      <PinInput
+        pinValue={confirmPin ? confirmPinValue : pinValue}
+        setPinValue={confirmPin ? setConfirmPinValue : setPinValue}
+        error={errorMessage}
+      />
+
+      {/* Action Button */}
+      <OnboardingActionButton onClick={handleAction}>{confirmPin ? 'Confirm' : 'Continue'}</OnboardingActionButton>
+    </>
+  );
+};
+
+const PinInput = ({
+  pinValue,
+  setPinValue,
+  error,
+}: {
+  pinValue: string;
+  setPinValue: Dispatch<SetStateAction<string>>;
+  error: string;
+}) => {
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const { valueItems, targetRefs, inputOnChange, inputOnKeyDown, inputOnFocus, handleKeyPadClick } = useDigitInputs({
     value: pinValue,
@@ -25,20 +91,12 @@ const SelectDevicePin = () => {
 
   return (
     <>
-      <HeadingBox>
-        <StepTitle>
-          <>
-            Create a <br />
-            <HeadingEmphasis>Device PIN</HeadingEmphasis>
-          </>
-        </StepTitle>
-        <StepDescription>Create a PIN to secure your wallet on this device.</StepDescription>
-      </HeadingBox>
-
       <Flex direction="column">
+        {/* see password toggle */}
+
         <Box
           display="grid"
-          gridTemplateColumns="repeat(7, 1fr)"
+          gridTemplateColumns="repeat(6, 1fr)"
           gridGap={4}>
           {valueItems.map((digit, idx) => (
             <Input
@@ -80,27 +138,37 @@ const SelectDevicePin = () => {
               }}
             />
           ))}
+        </Box>
 
-          {/* see password toggle */}
+        <Flex
+          mt="2"
+          w="full"
+          justify="space-between">
+          {/* error */}
+          {error && (
+            <Box
+              color="red.500"
+              fontSize="sm">
+              {error}
+            </Box>
+          )}
           <Icon
-            alignSelf="center"
             aria-label="toggle password visibility"
             h={6}
             w={6}
+            mr="2"
+            ml="auto"
             color="blackAlpha.400"
             fontSize="md"
             cursor="pointer"
             onClick={() => setPasswordVisible((prev) => !prev)}
-            as={!passwordVisible ? EyeIcon : EyeSlashIcon}
+            as={passwordVisible ? EyeIcon : EyeSlashIcon}
           />
-        </Box>
+        </Flex>
       </Flex>
 
       {/* keypad */}
       <Keypad onKeypadClick={handleKeyPadClick} />
-
-      {/* Action Button */}
-      <OnboardingActionButton onClick={handleAction}>Select Username</OnboardingActionButton>
     </>
   );
 };
