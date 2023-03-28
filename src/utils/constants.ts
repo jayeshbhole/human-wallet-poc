@@ -12,3 +12,4 @@ export const chainConfig = {
   ticker: 'ETH',
   tickerName: 'Ethereum',
 };
+export const FACTORY_ADDRESS = '';
