@@ -1,45 +1,65 @@
 import { AnyAssetAmount } from './asset';
 import { EVMNetwork } from './network';
-import { UserOperationStruct } from '@humanwallet/contracts';
 import { HumanAccountAPI, HumanAccountApiParams } from '@humanwallet/sdk/dist/src/HumanAccountAPI';
+import { Wallet } from 'ethers';
+import HumanAccountClientAPI from '../utils/account-api';
 
-export type AccountBalance = {
-  /**
-   * The address whose balance was measured.
-   */
+type AccountBalance = {
   address: string;
-  /**
-   * The measured balance and the asset in which it's denominated.
-   */
   assetAmount: AnyAssetAmount;
-  /**
-   * The network on which the account balance was measured.
-   */
   network: EVMNetwork;
-  /**
-   * The block height at while the balance measurement is valid.
-   */
   blockHeight?: string;
-  /**
-   * When the account balance was measured, using Unix epoch timestamps.
-   */
   retrievedAt: number;
-  /**
-   * A loose attempt at tracking balance data provenance, in case providers
-   * disagree and need to be disambiguated.
-   */
   dataSource: 'alchemy' | 'local' | 'infura' | 'custom';
 };
 
-export abstract class AccountApiType extends HumanAccountAPI {
-  abstract serialize: () => Promise<object>;
-
-  // abstract signUserOpWithContext(userOp: UserOperationStruct, context?: any): Promise<UserOperationStruct>;
+interface DeserializeState {
+  data: {
+    signerAddress: string;
+    signerKey: string;
+  };
 }
 
-export interface AccountApiParamsType<T> extends HumanAccountApiParams {
+interface HumanAccountApiParamsType<T> extends HumanAccountApiParams {
   context?: T;
-  deserializeState?: any;
+  deserializeState?: DeserializeState;
+  signerWallet: Wallet | undefined;
 }
 
-export type AccountImplementationType = new (params: AccountApiParamsType<any>) => AccountApiType;
+type Vault = {
+  vault: string;
+  encryptionKey?: string;
+  encryptionSalt?: string;
+};
+type KeyringSerialisedState = {
+  username: string;
+  address: string;
+  ownerAddress: string;
+  data: DeserializeState;
+};
+
+type HumanAccountData = {
+  address: string;
+  username: string;
+  networks: EVMNetwork[];
+  ownerAddress: string;
+  signerAddress: string;
+  accountDeployed: boolean;
+  minimumRequiredFunds: string;
+  balances?: {
+    [assetSymbol: string]: AccountBalance;
+  };
+  ens?: {
+    name?: string;
+    avatarURL?: string;
+  };
+};
+
+export type {
+  DeserializeState,
+  HumanAccountApiParamsType,
+  HumanAccountData,
+  AccountBalance,
+  Vault,
+  KeyringSerialisedState,
+};

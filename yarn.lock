@@ -1900,10 +1900,10 @@
   resolved "https://registry.yarnpkg.com/@humanwallet/contracts/-/contracts-0.5.1.tgz#13587c5f9b6cb0e722288171b9761a904b0d6b32"
   integrity sha512-SJtLzWypbLAiux9dws5uZfyYN0JfBCtTt1ZuQZp2N/lNIm5dc8C4ekMZ2hX2RgPCLvhMHMoQr8qFLc8fHzWIAw==
 
-"@humanwallet/sdk@^0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@humanwallet/sdk/-/sdk-0.5.1.tgz#79de987f45eb8f92d55627fc5528ba7c3ac73518"
-  integrity sha512-XRJMIJGnMwEbsxATmFM1HEGM+MGElOqhRfGfVfbG0g91vJkpOo+zIUUM1CTgVB96wKuUpU+4Yve/B7ktLuy0KQ==
+"@humanwallet/sdk@^0.5.5":
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/@humanwallet/sdk/-/sdk-0.5.5.tgz#46092c8996a47d7b65347f9da9c27d3ef379bccd"
+  integrity sha512-KKoAnQf1qcMR42kWZPqWGnM51XYoUU88t6lvvyGxW40vhs3CWfTujUtmXSAUOE0IZQjomZEOfZvr6cONbOrmWg==
   dependencies:
     "@account-abstraction/contracts" "^0.5.0"
     "@account-abstraction/utils" "^0.5.0"

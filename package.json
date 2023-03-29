@@ -13,7 +13,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@humanwallet/contracts": "^0.5.1",
-    "@humanwallet/sdk": "^0.5.1",
+    "@humanwallet/sdk": "^0.5.5",
     "@metamask/browser-passworder": "^4.1.0",
     "@web3auth/base": "^5.0.0-alpha.0",
     "@web3auth/core": "^4.6.0",

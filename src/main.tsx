@@ -2,6 +2,7 @@ import { Box, ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { KeyringContextProvider } from './contexts/KeyringContext';
 import OnboardingContextProvider from './contexts/OnboardingContext';
 import ErrorPage from './pages/Error';
 import Landing from './pages/Landing';
@@ -48,22 +49,24 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ChakraProvider theme={theme}>
-      <Box
-        className="root-container"
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        h="full"
-        w="full"
-        p={{ base: 0, md: 8 }}>
+    <KeyringContextProvider>
+      <ChakraProvider theme={theme}>
         <Box
-          className="app"
-          shadow={'2xl'}
-          bg="bg.primary">
-          <RouterProvider router={router} />
+          className="root-container"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          h="full"
+          w="full"
+          p={{ base: 0, md: 8 }}>
+          <Box
+            className="app"
+            shadow={'2xl'}
+            bg="bg.primary">
+            <RouterProvider router={router} />
+          </Box>
         </Box>
-      </Box>
-    </ChakraProvider>
+      </ChakraProvider>
+    </KeyringContextProvider>
   </React.StrictMode>
 );

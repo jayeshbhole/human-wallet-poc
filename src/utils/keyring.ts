@@ -1,10 +1,9 @@
-import { HttpRpcClient, HumanAccountAPI, PaymasterAPI } from '@humanwallet/sdk';
-import { createContext } from 'react';
-import { AccountApiType, AccountBalance, AccountImplementationType } from '../types/account';
-import { EVMNetwork } from '../types/network';
 import { Provider } from '@ethersproject/providers';
-import { ethers } from 'ethers';
+import { HttpRpcClient, PaymasterAPI } from '@humanwallet/sdk';
 import * as encryptor from '@metamask/browser-passworder';
+import { ethers } from 'ethers';
+import { AccountApiType, AccountBalance } from '../types/account';
+import { EVMNetwork } from '../types/network';
 import { AccountImplementation } from './constants';
 
 export type Vault = {
@@ -12,7 +11,7 @@ export type Vault = {
   encryptionKey?: string;
   encryptionSalt?: string;
 };
-type KeyringSerialisedState = {
+export type KeyringSerialisedState = {
   address: string;
   data: any;
 };

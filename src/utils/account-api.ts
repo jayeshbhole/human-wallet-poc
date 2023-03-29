@@ -1,18 +1,9 @@
-import { BigNumber, BigNumberish, ethers, Wallet } from 'ethers';
-// import {
-//   SimpleAccount,
-//   SimpleAccount__factory,
-//   SimpleAccountFactory,
-//   SimpleAccountFactory__factory,
-//   UserOperationStruct,
-// } from '@account-abstraction/contracts';
-import { arrayify, hexConcat } from 'ethers/lib/utils';
-
-import { AccountApiParamsType, AccountApiType } from '../types/account';
-import { FACTORY_ADDRESS } from './constants';
+import { UserOperationStruct } from '@humanwallet/contracts';
 import { HumanAccountAPI } from '@humanwallet/sdk';
-import { HumanAccount, HumanAccountFactory, UserOperationStruct } from '@humanwallet/contracts';
 import { TransactionDetailsForUserOp } from '@humanwallet/sdk/dist/src/TransactionDetailsForUserOp';
+import { BigNumber, ethers } from 'ethers';
+import { DeserializeState, HumanAccountApiParamsType } from '../types/account';
+import { FACTORY_ADDRESS } from './constants';
 
 /**
  * An implementation of the BaseAccountAPI using the SimpleAccount contract.
@@ -22,26 +13,48 @@ import { TransactionDetailsForUserOp } from '@humanwallet/sdk/dist/src/Transacti
  * - execute method is "execFromEntryPoint()"
  */
 class HumanAccountClientAPI extends HumanAccountAPI {
-  name: string;
-  factoryAddress?: string;
-  owner: Wallet;
-  index: number;
+  signerWallet: ethers.Wallet;
 
-  constructor(params: AccountApiParamsType<{}>) {
+  constructor(params: HumanAccountApiParamsType<{}>) {
     super(params);
+    this.username = params.username;
+    this.accountAddress = params.accountAddress;
     this.factoryAddress = FACTORY_ADDRESS;
 
-    this.owner = params.deserializeState?.privateKey
-      ? new ethers.Wallet(params.deserializeState?.privateKey)
-      : ethers.Wallet.createRandom();
-    this.index = 0;
-    this.name = 'SimpleAccountAPI';
+    if (params.signerWallet) {
+      this.signerWallet = params.signerWallet;
+      this.signer = params.signerWallet;
+    } else {
+      const wallet = params.deserializeState?.data.signerKey
+        ? new ethers.Wallet(params.deserializeState?.data.signerKey)
+        : ethers.Wallet.createRandom();
+      this.signer = wallet;
+      this.signerWallet = wallet;
+    }
+
+    this.index = params.index ?? 0;
+
+    console.debug('// HumanAccountClientAPI', {
+      username: this.username,
+      accountAddress: this.accountAddress,
+      factoryAddress: this.factoryAddress,
+      index: this.index,
+      signer: this.signer,
+      signerWallet: this.signerWallet,
+    });
   }
 
-  serialize = async (): Promise<object> => {
+  serialize = async (): Promise<DeserializeState> => {
     return {
-      privateKey: this.owner.privateKey,
+      data: {
+        signerAddress: await this.signer.getAddress(),
+        signerKey: this.signerWallet.privateKey,
+      },
     };
+  };
+
+  getSignerAddress = (): string => {
+    return this.signerWallet.address;
   };
 
   async createUnsignedUserOpForTransactions(transactions: TransactionDetailsForUserOp[]): Promise<UserOperationStruct> {
