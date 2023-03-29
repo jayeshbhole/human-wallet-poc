@@ -4,16 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button } from '@chakra-ui/react';
 
 const LoadWeb3Auth = () => {
-  const { setWeb3AuthProviderAndNavigate, provider } = useContext(OnboardingContext);
+  const { getOwnerKeysAndNavigate, ownerPubKey, web3Auth } = useContext(OnboardingContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!provider) {
-      setWeb3AuthProviderAndNavigate();
-    } else {
-      navigate('/onboarding/fetchAccounts');
+    console.log('web3Auth', web3Auth);
+    if (web3Auth) {
+      if (!ownerPubKey) {
+        getOwnerKeysAndNavigate(web3Auth);
+      } else {
+        navigate('/onboarding/fetchAccounts');
+      }
     }
-  }, [provider, setWeb3AuthProviderAndNavigate, navigate]);
+  }, [getOwnerKeysAndNavigate, web3Auth, navigate]);
 
   return (
     <Box
@@ -21,9 +24,9 @@ const LoadWeb3Auth = () => {
       flexDirection="column"
       gap={8}
       height="100%">
-      Loading
+      Loading. Getting your owner key
       <Button
-        onClick={setWeb3AuthProviderAndNavigate}
+        onClick={() => web3Auth && getOwnerKeysAndNavigate(web3Auth)}
         backgroundColor="blue.500"
         color="white"
         px={4}

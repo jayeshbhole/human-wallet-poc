@@ -6,11 +6,11 @@ import { OnboardingContext } from '../../contexts/OnboardingContext';
 
 const SelectUsername = () => {
   const [username, setUsername] = useState('');
-  const { selectUsernameAndDeploy } = useContext(OnboardingContext);
+  const { selectUsername } = useContext(OnboardingContext);
   const [inputBlur, setInputBlur] = useState(false);
 
   const handleAction = () => {
-    selectUsernameAndDeploy(username);
+    selectUsername(username);
   };
 
   const inputError = useMemo(() => {
