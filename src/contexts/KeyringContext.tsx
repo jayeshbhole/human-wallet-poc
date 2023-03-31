@@ -10,6 +10,7 @@ import { getHttpRpcClient } from '../utils/getHttpRpcClient';
 import { getHumanAccount } from '../utils/getHumanAccount';
 import { getVerifyingPaymaster, paymasterAPI } from '../utils/getPaymaster';
 import { printOp } from '../utils/opUtils';
+import registerDeviceKey from '../utils/registerDeviceKey';
 
 interface KeyringContext {
   keyrings: { [address: string]: HumanAccountClientAPI };
@@ -174,71 +175,35 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     const isDeviceRegistered = isAccountDeployed && (await accountContract.deviceKeys(deviceAddress));
 
     if (!isAccountDeployed || !isDeviceRegistered) {
-      console.log('===registering device key', deviceAddress, 'for account', accountUsername, accountContract.address);
-      const registerRequestHash = ethers.utils.keccak256(
-        ethers.utils.defaultAbiCoder.encode(['address'], [deviceAddress])
-      );
-
-      // sign the public key with the account's private key
-      const sig = await ownerSigner.signMessage(ethers.utils.arrayify(registerRequestHash));
-
-      const registerOp = await ownerSignerAcc.createSignedUserOp({
-        target: accountContract.address,
-        value: 0,
-        data: accountContract.interface.encodeFunctionData('registerDeviceKey', [deviceAddress, sig]),
-        ...(await getGasFee(provider)),
+      registerDeviceKey({
+        provider,
+        accountUsername,
+        accountContract,
+        ownerSigner,
+        humanAccount: ownerSignerAcc,
+        deviceAddress,
+        bundler,
       });
-      console.log(`Signed UserOperation: ${await printOp(registerOp)}`);
-
-      const uoHash = await bundler.sendUserOpToBundler(registerOp);
-      console.log(`Operation hash: ${uoHash}`);
-
-      // save the keyring
-      const _keyring = await _newKeyring(accountUsername, accountContract.address, await ownerSigner.getAddress(), {
-        signerAddress: await deviceWallet.getAddress(),
-        signerKey: deviceWallet.privateKey,
-      });
-      const newKeyrings: Keyrings = { ...appKeyrings, [accountUsername]: _keyring };
-      console.log('keyring', _keyring);
-      encryptVault(pin, newKeyrings);
-      setDeviceWallet(deviceWallet);
-      setAppKeyrings(newKeyrings);
-
-      console.log('Waiting for transaction...');
-      const txHash = await ownerSignerAcc.getUserOpReceipt(uoHash);
-      console.log(`Transaction hash: ${txHash}`);
-
-      if (!txHash) {
-        console.error('Device registration op error!!!');
-        return false;
-      }
-
-      console.log('Waiting for transaction to be mined...');
-      await provider.waitForTransaction(txHash);
 
       console.log('Device registered');
-
-      return true;
     } else {
       console.log('device already registered');
-
-      const _keyring = await _newKeyring(accountUsername, accountContract.address, await ownerSigner.getAddress(), {
-        signerAddress: await deviceWallet.getAddress(),
-        signerKey: deviceWallet.privateKey,
-      });
-
-      const newKeyrings: Keyrings = {
-        ...appKeyrings,
-        [accountUsername]: _keyring,
-      };
-      console.log('keyring', newKeyrings);
-
-      encryptVault(pin, newKeyrings);
-      setDeviceWallet(deviceWallet);
-      setAppKeyrings(newKeyrings);
-
-      return true;
     }
+
+    // save the keyring
+    const _keyring = await _newKeyring(accountUsername, accountContract.address, await ownerSigner.getAddress(), {
+      signerAddress: await deviceWallet.getAddress(),
+      signerKey: deviceWallet.privateKey,
+    });
+    const newKeyrings: Keyrings = { ...appKeyrings, [accountUsername]: _keyring };
+    console.log('keyring', _keyring);
+
+    encryptVault(pin, newKeyrings);
+    setDeviceWallet(deviceWallet);
+    setAppKeyrings(newKeyrings);
+    setSelectedAccount(newKeyrings[accountUsername]);
+
+    return true;
   };
 
   const _restoreKeyring = async (serialized: KeyringSerialisedState): Promise<HumanAccountClientAPI | undefined> => {
