@@ -1,7 +1,7 @@
 import { Box, ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 import { KeyringContextProvider } from './contexts/KeyringContext';
 import OnboardingContextProvider from './contexts/OnboardingContext';
 import ErrorPage from './pages/Error';
@@ -16,7 +16,13 @@ import SelectAccount from './pages/Onboarding/SelectAccount';
 import SelectPin from './pages/Onboarding/SelectPin';
 import SelectUsername from './pages/Onboarding/SelectUsername';
 import UnlockScreen from './pages/UnlockScreen';
+import History from './pages/Wallet/History';
+import Home from './pages/Wallet/Home';
+import Receive from './pages/Wallet/Receive';
+import Send from './pages/Wallet/Send';
+import Settings from './pages/Wallet/Settings';
 import LoadingSplashScreen from './routes';
+import RequireUnlock from './routes/RequirePIN';
 import { theme } from './theme';
 
 const router = createBrowserRouter([
@@ -28,6 +34,21 @@ const router = createBrowserRouter([
   {
     path: '/unlock',
     element: <UnlockScreen />,
+  },
+  {
+    path: '/wallet',
+    element: (
+      <RequireUnlock>
+        <Outlet />
+      </RequireUnlock>
+    ),
+    children: [
+      { path: 'home', element: <Home />, index: true },
+      { path: 'send', element: <Send /> },
+      { path: 'receive', element: <Receive /> },
+      { path: 'settings', element: <Settings /> },
+      { path: 'history', element: <History /> },
+    ],
   },
   {
     path: '/onboarding',
@@ -46,10 +67,15 @@ const router = createBrowserRouter([
       { path: 'select-username', element: <SelectUsername /> },
       { path: 'select-pin', element: <SelectPin /> },
       { path: 'select-account', element: <SelectAccount /> },
-      { path: 'final', element: <FinishOnboarding /> },
+      {
+        path: 'final',
+        element: (
+          <RequireUnlock>
+            <FinishOnboarding />
+          </RequireUnlock>
+        ),
+      },
       // google-login
-      // select-account
-      // final
     ],
   },
 ]);
