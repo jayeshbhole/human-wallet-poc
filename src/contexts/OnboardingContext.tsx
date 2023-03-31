@@ -3,11 +3,25 @@ import { CHAIN_NAMESPACES, SafeEventEmitterProvider } from '@web3auth/base';
 import { Web3Auth } from '@web3auth/single-factor-auth';
 import { ethers, Signer, Wallet } from 'ethers';
 import { ConfirmationResult, RecaptchaVerifier, User, signInWithPhoneNumber } from 'firebase/auth';
-import { createContext, useCallback, useEffect, useRef, useState } from 'react';
+import { createContext, memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { web3AuthClientId, chainConfig } from '../utils/constants';
 import { auth } from '../utils/firebase';
 import { useKeyringContext } from './KeyringContext';
+
+const HUMANACCOUNT_BY_OWNER_QUERY = `
+query HumanAccounts($where: HumanAccount_filter) {
+  humanAccounts(where: $where) {
+    address
+    owner
+    username
+  }
+}`;
+interface DeployedAccount {
+  address: string;
+  owner: string;
+  username: string;
+}
 
 export enum OnboardingMode {
   NONE = 'none',
@@ -41,6 +55,8 @@ interface OnboardingContext {
   firebaseUser: User | null;
   web3Auth: Web3Auth | undefined;
   ownerPubKey: string;
+  deployedAccounts: DeployedAccount[];
+  phoneNumber: string;
   setStep: (step: number) => void;
   setMode: (mode: OnboardingStep) => void;
   handlePhoneSubmit: (phoneNumber: string) => Promise<boolean>;
@@ -48,6 +64,7 @@ interface OnboardingContext {
   getOwnerKeysAndNavigate: (web3Auth?: Web3Auth) => Promise<void>;
   selectUsername: (username: string) => Promise<void>;
   handlePinSubmit: (pin: string) => Promise<void>;
+  findDeployedAccounts: () => Promise<DeployedAccount[]>;
 }
 
 export const OnboardingContext = createContext<OnboardingContext>({
@@ -55,8 +72,10 @@ export const OnboardingContext = createContext<OnboardingContext>({
   mode: OnboardingMode.NONE,
   canResendOTP: false,
   firebaseUser: null,
+  phoneNumber: '',
   web3Auth: undefined,
   ownerPubKey: '',
+  deployedAccounts: [],
 
   setStep: (step: number) => {},
   setMode: (mode: OnboardingStep) => {},
@@ -66,6 +85,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
   getOwnerKeysAndNavigate: (web3Auth?: Web3Auth) => Promise.resolve(),
   selectUsername: (username: string) => Promise.resolve(),
   handlePinSubmit: (pin: string) => Promise.resolve(),
+  findDeployedAccounts: () => Promise.resolve([]),
 });
 
 const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -73,12 +93,15 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
   // const [mode, setMode] = useState<OnboardingMode>(OnboardingMode.NONE);
 
   const [firebaseUser, setFirebaseUser] = useState<User>(auth.currentUser as User);
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [applicationVerifier, setApplicationVerifier] = useState<RecaptchaVerifier | null>(null);
 
   const [web3Auth, setWeb3Auth] = useState<Web3Auth | undefined>();
   const [ownerWallet, setOwnerWallet] = useState<Wallet>();
   const [ownerPubKey, setOwnerPubKey] = useState<string>('');
+
+  const [deployedAccounts, setDeployedAccounts] = useState<DeployedAccount[]>([]);
 
   const [accountUsername, setAccountUsername] = useState<string>('');
   const [canResendOTP, setCanResendOTP] = useState<boolean>(true);
@@ -108,6 +131,7 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setFirebaseUser(user);
+        setPhoneNumber(user.phoneNumber as string);
         console.debug('FIREBASE: found user logged in');
       }
     });
@@ -148,6 +172,7 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
         }, 30000);
         // console.debug(res);
         setConfirmationResult(res);
+        setPhoneNumber(phoneNumber);
         return res;
       } catch (err) {
         console.debug(err);
@@ -191,71 +216,80 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
     [confirmationResult]
   );
 
-  const getOwnerKeys = useCallback(
-    async (_web3Auth?: Web3Auth) => {
-      if (!web3Auth) {
-        console.error('WEB3AUTH: web3auth not initialized yet');
-        return;
-      }
+  const getOwnerKeys = useCallback(async () => {
+    if (!web3Auth) {
+      console.error('WEB3AUTH: web3auth not initialized yet');
+      return;
+    }
 
-      if (web3Auth.provider) {
-        return web3Auth.provider;
-      } else {
-        const _idToken = await firebaseUser.getIdToken(true);
-        console.debug('WEB3AUTH: provider not set yet. requesting id token');
-        const _provider = await web3Auth
-          .connect({
-            verifier: 'wallet-firebase',
-            verifierId: firebaseUser.uid,
-            idToken: _idToken,
-          })
-          .then(async (_provider) => {
-            if (!_provider) {
-              console.error('WEB3AUTH: Error getting owner key');
-              return;
-            }
+    if (web3Auth.provider) {
+      return web3Auth.provider;
+    } else {
+      const _idToken = await firebaseUser.getIdToken(true);
+      console.debug('WEB3AUTH: provider not set yet. requesting id token');
+      const _provider = await web3Auth
+        .connect({
+          verifier: 'wallet-firebase',
+          verifierId: firebaseUser.uid,
+          idToken: _idToken,
+        })
+        .then(async (_provider) => {
+          if (!_provider) {
+            console.error('WEB3AUTH: Error getting owner key');
+            return;
+          }
 
-            const _privKey: string = (await _provider.request({ method: 'eth_private_key' })) ?? '';
-            const _ownerSigner = new ethers.Wallet(_privKey);
+          const _privKey: string = (await _provider.request({ method: 'eth_private_key' })) ?? '';
+          const _ownerSigner = new ethers.Wallet(_privKey);
 
-            console.log('WEB3AUTH: owner signer', _ownerSigner);
+          setOwnerWallet(_ownerSigner);
+          setOwnerPubKey(_ownerSigner.address);
 
-            setOwnerWallet(_ownerSigner);
-            setOwnerPubKey(_ownerSigner.address);
+          return _provider;
+        })
+        .catch((err) => {
+          console.error(err);
+        });
 
-            return _provider;
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+      return _provider;
+    }
+  }, [web3Auth, firebaseUser, setOwnerPubKey, setOwnerWallet]);
 
-        return _provider;
-      }
-    },
-    [web3Auth, firebaseUser, setOwnerPubKey, setOwnerWallet]
-  );
-
-  const getOwnerKeysAndNavigate = useCallback(
-    async (_web3Auth?: Web3Auth) => {
-      const _provider = await getOwnerKeys(_web3Auth);
-      if (_provider) {
-        navigate('/onboarding/fetchAccounts');
-      }
-    },
-    [getOwnerKeys, navigate]
-  );
+  const getOwnerKeysAndNavigate = useCallback(async () => {
+    const _provider = await getOwnerKeys();
+    if (_provider) {
+      navigate('/onboarding/fetchAccounts');
+    }
+  }, [getOwnerKeys, navigate]);
 
   const findDeployedAccounts = useCallback(async () => {
-    let accounts: string[] = [];
-    if (accounts) {
-      navigate('/onboarding/select-account');
-    } else {
-      navigate('/onboarding/select-username');
+    let accounts: DeployedAccount[] = [];
+    // const myHeaders = new Headers();
+    // myHeaders.append('Content-Type', 'application/json');
+
+    const graphql = JSON.stringify({
+      query: HUMANACCOUNT_BY_OWNER_QUERY,
+      variables: { where: { owner: ownerPubKey } },
+    });
+    const requestOptions = {
+      method: 'POST',
+      body: graphql,
+    };
+
+    const res = await fetch('https://api.thegraph.com/subgraphs/name/jayeshbhole/humanaccounts', requestOptions)
+      .then((response) => response.json())
+      .catch((error) => console.log('error', error));
+
+    if (res?.data?.humanAccounts) {
+      accounts = res.data.humanAccounts;
     }
-  }, []);
+    setDeployedAccounts(accounts as DeployedAccount[]);
+    return accounts;
+  }, [ownerPubKey]);
 
   const selectUsername = useCallback(async (_username: string) => {
     setAccountUsername(_username);
+    navigate('/onboarding/select-pin');
   }, []);
 
   const handlePinSubmit = useCallback(
@@ -280,13 +314,15 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
           ownerSigner: ownerWallet,
         });
 
-        console.log('regDevice res', regDevice);
+        if (!regDevice) {
+          console.error('Error initializing device');
+          return;
+        }
+
+        navigate('/onboarding/final');
       } catch (err) {
         console.error(err);
       }
-
-      // ask keyring to deploy account with username, registering the device key
-      // const tx = await keyring.registerKey(accountUsername, ownerPubKey);
     },
     [accountUsername, ownerWallet, firebaseUser, initDeviceWithPin]
   );
@@ -298,10 +334,12 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
       value={{
         step: 0,
         mode: OnboardingMode.NONE,
+        phoneNumber,
         web3Auth,
         canResendOTP,
         firebaseUser,
         ownerPubKey,
+        deployedAccounts,
         setStep: (step: number) => {},
         setMode: (mode: OnboardingStep) => {},
         handlePhoneSubmit,
@@ -309,6 +347,7 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
         getOwnerKeysAndNavigate,
         selectUsername,
         handlePinSubmit,
+        findDeployedAccounts,
       }}>
       {children}
       <div
@@ -319,4 +358,4 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
   );
 };
 
-export default OnboardingContextProvider;
+export default memo(OnboardingContextProvider);
