@@ -37,8 +37,22 @@ const SelectAccount = () => {
           mb={4}
           display="flex"
           flexDirection="column"
-          alignItems="center">
+          alignItems="center"
+          position="relative"
+          _before={{
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: 'calc(100% - 8px)',
+            height: 'calc(100% - 8px)',
+            background: 'gray.100',
+            borderRadius: 'xl',
+            transform: 'translate(-50%, -50%)',
+            zIndex: -1,
+          }}>
           <Box
+            zIndex="1"
             mb="2"
             fontSize="xl"
             fontWeight="600"
@@ -46,6 +60,7 @@ const SelectAccount = () => {
             {account.username}
           </Box>
           <Box
+            zIndex="1"
             fontSize="sm"
             fontWeight="500"
             color="gray.400"
