@@ -1,12 +1,14 @@
 import { PaymasterAPI } from '@humanwallet/sdk';
 import * as encryptor from '@metamask/browser-passworder';
-import { ethers, Signer, Wallet } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { DeserializeState, HumanAccountData, KeyringSerialisedState } from '../types/account';
 import HumanAccountClientAPI from '../utils/account-api';
 import { BUNDLER_URL, ENTRYPOINT_ADDRESS, RPC_URL } from '../utils/constants';
 import { getGasFee } from '../utils/getGasFee';
 import { getHttpRpcClient } from '../utils/getHttpRpcClient';
+import { getHumanAccount } from '../utils/getHumanAccount';
+import { getVerifyingPaymaster, paymasterAPI } from '../utils/getPaymaster';
 import { printOp } from '../utils/opUtils';
 
 interface KeyringContext {
@@ -52,12 +54,11 @@ const bundler = await getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS
 type Keyrings = { [address: string]: HumanAccountClientAPI };
 
 export const KeyringContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [keyrings, setKeyrings] = useState<Keyrings>({});
+  const [appKeyrings, setAppKeyrings] = useState<Keyrings>({});
   const [vault, setVault] = useState<string>(localStorage.getItem('vault') ?? '');
   const [status, setStatus] = useState<'locked' | 'unlocked' | 'uninitialized'>('uninitialized');
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const [paymasterAPI, setPaymasterAPI] = useState<PaymasterAPI>();
   const [accounts, setAccounts] = useState<HumanAccountData[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<HumanAccountClientAPI>();
   const [deviceWallet, setDeviceWallet] = useState<ethers.Wallet>();
@@ -65,7 +66,6 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   useEffect(() => {
     if (status === 'uninitialized') {
       if (vault) {
-        setVault(vault);
         setStatus('locked');
       } else {
         setStatus('uninitialized');
@@ -76,32 +76,39 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   const unlockVault = async (password?: string) => {
     if (!vault) {
       setError('Vault is not initialized');
+      throw new Error('Vault is not initialized');
     }
 
-    if (status === 'unlocked') {
-      setKeyrings({});
+    if (status !== 'locked') {
+      setError('Vault is already unlocked');
+      throw new Error('Vault is already unlocked');
     }
 
     if (!password) {
-      setError('Password is required');
-      return;
+      throw new Error('PIN is required to unlock wallet');
     } else {
-      const result = await encryptor.decryptWithDetail(password, vault);
+      try {
+        const result = await encryptor.decryptWithDetail(password, vault);
 
-      const _vault: any = result.vault;
-      const _keyrings = await Promise.all(_vault.map(_restoreKeyring));
+        const _vault: any = result.vault;
+        const _keyrings = await Promise.all(_vault.map(_restoreKeyring));
 
-      // @ts-ignore
-      setKeyrings(_keyrings);
+        console.debug(_keyrings);
+        // @ts-ignore
+        setAppKeyrings(_keyrings);
+        setStatus('unlocked');
+      } catch (e) {
+        throw new Error('Incorrect password');
+      }
     }
   };
 
-  const encryptVault = async (password: string, keyrings: Keyrings) => {
+  const encryptVault = async (password: string, _keyrings: Keyrings) => {
     if (!password) {
       throw new Error('Cannot persist vault without password and encryption key');
     }
     const serializedKeyrings: KeyringSerialisedState[] = await Promise.all(
-      Object.values(keyrings).map(async (keyring) => {
+      Object.values(_keyrings).map(async (keyring) => {
         const [username, address, ownerAddress, data] = await Promise.all([
           keyring.username,
           keyring.getAccountAddress(),
@@ -113,7 +120,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
       })
     );
 
-    console.log(serializedKeyrings);
+    console.log('ENCRYPT:', serializedKeyrings, _keyrings);
 
     const { vault: newVault, exportedKeyString } = await encryptor.encryptWithDetail(password, serializedKeyrings);
 
@@ -141,71 +148,95 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     if (!pin) throw new Error('Cannot initialise device without pin');
     if (!/^\d{6}$/.test(pin)) throw new Error('Invalid pin');
 
-    const account = new HumanAccountClientAPI({
+    const ownerSignerAcc = await getHumanAccount({
       provider: provider,
-      username: accountUsername,
-      owner: ownerSigner,
+      accountUsername,
       ownerAddress: await ownerSigner.getAddress(),
-      signer: ownerSigner,
+      ownerWallet: ownerSigner,
+      signerWallet: ownerSigner,
       entryPointAddress: ENTRYPOINT_ADDRESS,
       paymasterAPI: paymasterAPI,
-      signerWallet: undefined,
     });
-    const deviceAddress = account.getSignerAddress();
-    const deviceWallet = account.signerWallet;
-    setDeviceWallet(deviceWallet);
+    const deviceAcount = await getHumanAccount({
+      provider: provider,
+      accountUsername,
+      ownerAddress: await ownerSigner.getAddress(),
+      entryPointAddress: ENTRYPOINT_ADDRESS,
+      paymasterAPI: paymasterAPI,
+    });
+    const deviceAddress = deviceAcount.getSignerAddress();
+    const deviceWallet = deviceAcount.signerWallet;
 
-    const accountContract = await account._getAccountContract();
+    const accountContract = await ownerSignerAcc._getAccountContract();
 
     const code = await provider.getCode(accountContract.address);
     const isAccountDeployed = code !== '0x';
     const isDeviceRegistered = isAccountDeployed && (await accountContract.deviceKeys(deviceAddress));
 
     if (!isAccountDeployed || !isDeviceRegistered) {
-      // console.log('===registering device key', deviceAddress);
-      // const registerRequestHash = ethers.utils.keccak256(
-      //   ethers.utils.defaultAbiCoder.encode(['address'], [deviceAddress])
-      // );
+      console.log('===registering device key', deviceAddress, 'for account', accountUsername, accountContract.address);
+      const registerRequestHash = ethers.utils.keccak256(
+        ethers.utils.defaultAbiCoder.encode(['address'], [deviceAddress])
+      );
 
-      // // sign the public key with the account's private key
-      // // const sig = await ownerSigner.signMessage(ethers.utils.arrayify(registerRequestHash));
+      // sign the public key with the account's private key
+      const sig = await ownerSigner.signMessage(ethers.utils.arrayify(registerRequestHash));
 
-      // // const registerOp = await account.createSignedUserOp({
-      // //   target: accountContract.address,
-      // //   value: 0,
-      // //   data: accountContract.interface.encodeFunctionData('registerDeviceKey', [deviceAddress, sig]),
-      // //   ...(await getGasFee(provider)),
-      // // });
-      // // console.log(`Signed UserOperation: ${await printOp(registerOp)}`);
+      const registerOp = await ownerSignerAcc.createSignedUserOp({
+        target: accountContract.address,
+        value: 0,
+        data: accountContract.interface.encodeFunctionData('registerDeviceKey', [deviceAddress, sig]),
+        ...(await getGasFee(provider)),
+      });
+      console.log(`Signed UserOperation: ${await printOp(registerOp)}`);
 
-      // // const uoHash = await bundler.sendUserOpToBundler(registerOp);
-      // // console.log(`Operation hash: ${uoHash}`);
-
-      // // console.log('Waiting for transaction...');
-      // // const txHash = await account.getUserOpReceipt(uoHash);
-      // // console.log(`Transaction hash: ${txHash}`);
-
-      // // if (!txHash) {
-      // //   console.error('Device registration op error!!!');
-      // //   return false;
-      // // }
-
-      // // console.log('Waiting for transaction to be mined...');
-      // // await provider.waitForTransaction(txHash);
-
-      console.log('Device registered');
+      const uoHash = await bundler.sendUserOpToBundler(registerOp);
+      console.log(`Operation hash: ${uoHash}`);
 
       // save the keyring
       const _keyring = await _newKeyring(accountUsername, accountContract.address, await ownerSigner.getAddress(), {
         signerAddress: await deviceWallet.getAddress(),
         signerKey: deviceWallet.privateKey,
       });
-      setKeyrings((keyrings) => ({ ...keyrings, [accountUsername]: _keyring }));
-      encryptVault(pin, keyrings);
+      const newKeyrings: Keyrings = { ...appKeyrings, [accountUsername]: _keyring };
+      console.log('keyring', _keyring);
+      encryptVault(pin, newKeyrings);
+      setDeviceWallet(deviceWallet);
+      setAppKeyrings(newKeyrings);
+
+      console.log('Waiting for transaction...');
+      const txHash = await ownerSignerAcc.getUserOpReceipt(uoHash);
+      console.log(`Transaction hash: ${txHash}`);
+
+      if (!txHash) {
+        console.error('Device registration op error!!!');
+        return false;
+      }
+
+      console.log('Waiting for transaction to be mined...');
+      await provider.waitForTransaction(txHash);
+
+      console.log('Device registered');
 
       return true;
     } else {
       console.log('device already registered');
+
+      const _keyring = await _newKeyring(accountUsername, accountContract.address, await ownerSigner.getAddress(), {
+        signerAddress: await deviceWallet.getAddress(),
+        signerKey: deviceWallet.privateKey,
+      });
+
+      const newKeyrings: Keyrings = {
+        ...appKeyrings,
+        [accountUsername]: _keyring,
+      };
+      console.log('keyring', newKeyrings);
+
+      encryptVault(pin, newKeyrings);
+      setDeviceWallet(deviceWallet);
+      setAppKeyrings(newKeyrings);
+
       return true;
     }
   };
@@ -215,7 +246,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
 
     const _keyring = await _newKeyring(username, address, ownerAddress, data.data);
 
-    setKeyrings((keyrings) => ({ ...keyrings, [username]: _keyring }));
+    setAppKeyrings((keyrings) => ({ ...keyrings, [username]: _keyring }));
 
     return _keyring;
   };
@@ -233,17 +264,13 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
       throw new Error('Provider is required');
     }
 
-    const signerWallet = new ethers.Wallet(data.signerKey, provider);
-
-    const account = new HumanAccountClientAPI({
-      accountAddress: address,
+    const account = getHumanAccount({
       provider: provider,
-      username: username,
+      accountUsername: username,
       ownerAddress: ownerAddress,
-      signer: signerWallet,
-      signerWallet,
       entryPointAddress: ENTRYPOINT_ADDRESS,
       paymasterAPI: paymasterAPI,
+      deserializeState: { data },
     });
 
     return account;
@@ -252,7 +279,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   return (
     <KeyringContext.Provider
       value={{
-        keyrings,
+        keyrings: appKeyrings,
         status,
         error,
         paymasterAPI,
