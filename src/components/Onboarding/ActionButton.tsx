@@ -5,6 +5,7 @@ export const OnboardingActionButton = ({
   children,
   onClick,
   disabled,
+  ...props
 }: {
   children: ReactNode;
   onClick: () => void;
@@ -16,15 +17,18 @@ export const OnboardingActionButton = ({
       w="full"
       h="auto"
       mt="auto"
-      rounded="xl"
+      rounded="2xl"
       py={4}
       fontWeight="600"
-      fontSize="xl"
-      color="blackAlpha.800"
-      bg="gray.100"
-      _hover={{ bg: 'gray.200' }}
+      fontSize="lg"
+      color="#FFFBFE"
+      bg="#04100F"
+      _hover={{}}
+      _active={{ opacity: 1 }}
+      _disabled={{ opacity: 0.75, cursor: 'not-allowed' }}
       onClick={onClick}
-      isDisabled={disabled}>
+      isDisabled={disabled}
+      {...props}>
       {children}
     </Button>
   );
