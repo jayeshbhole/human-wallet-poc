@@ -13,11 +13,11 @@ const OnboardingLayout = () => {
       height="100%"
       width="100%"
       gap={8}>
-      <Grid
+      {/* <Grid
         templateColumns="4rem 1fr 4rem"
         width="100%"
         className="__header">
-        {/* back button */}
+
         <IconButton
           icon={<ChevronLeftIcon />}
           aria-label="back to the previous page"
@@ -37,12 +37,12 @@ const OnboardingLayout = () => {
           rounded="xl"
         />
 
-        {/* onboarding flow title */}
+
         <h3></h3>
 
-        {/* step progress */}
+
         <div></div>
-      </Grid>
+      </Grid> */}
 
       {/* step */}
       <Outlet />
