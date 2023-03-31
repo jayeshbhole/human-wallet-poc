@@ -50,6 +50,8 @@ const registerDeviceKey = async ({
   console.log('Waiting for transaction to be mined...');
   await provider.waitForTransaction(txHash);
   console.log('Transaction mined!');
+
+  return true;
 };
 
 export default registerDeviceKey;

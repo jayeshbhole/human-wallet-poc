@@ -20,10 +20,10 @@ interface KeyringContext {
 
   paymasterAPI: PaymasterAPI | undefined;
 
-  accounts: HumanAccountData[];
-  selectedAccount?: HumanAccountClientAPI | undefined;
+  // accounts: HumanAccountData[];
+  activeAccount?: HumanAccountClientAPI | undefined;
 
-  unlockVault(password?: string): Promise<void>;
+  unlockVault(password?: string): Promise<boolean>;
 
   initDeviceWithPin: ({
     pin,
@@ -43,9 +43,9 @@ export const KeyringContext = createContext<KeyringContext>({
 
   paymasterAPI: undefined,
 
-  accounts: [],
-  selectedAccount: undefined,
-  unlockVault: () => Promise.resolve(),
+  // accounts: [],
+  activeAccount: undefined,
+  unlockVault: () => Promise.resolve(false),
   initDeviceWithPin: () => Promise.resolve(false),
 });
 
@@ -60,8 +60,12 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   const [status, setStatus] = useState<'locked' | 'unlocked' | 'uninitialized'>('uninitialized');
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const [accounts, setAccounts] = useState<HumanAccountData[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<HumanAccountClientAPI>();
+  // const [accounts, setAccounts] = useState<HumanAccountData[]>([]);
+
+  const [activeAccountUsername, setActiveAccUsername] = useState<string>(
+    localStorage.getItem('activeAccountUsername') ?? ''
+  );
+  const [activeAccount, setActiveAccount] = useState<HumanAccountClientAPI>();
   const [deviceWallet, setDeviceWallet] = useState<ethers.Wallet>();
 
   useEffect(() => {
@@ -72,7 +76,14 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
         setStatus('uninitialized');
       }
     }
-  }, [status]);
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(appKeyrings).length && !activeAccountUsername) {
+      setActiveAccount(appKeyrings[Object.keys(appKeyrings)[0]]);
+      setActiveAccUsername(appKeyrings[Object.keys(appKeyrings)[0]].username);
+    }
+  }, [appKeyrings, activeAccountUsername]);
 
   const unlockVault = async (password?: string) => {
     if (!vault) {
@@ -94,10 +105,19 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
         const _vault: any = result.vault;
         const _keyrings = await Promise.all(_vault.map(_restoreKeyring));
 
-        console.debug(_keyrings);
-        // @ts-ignore
-        setAppKeyrings(_keyrings);
+        const _appKeyrings = _keyrings.reduce((acc, cur) => {
+          return { ...acc, [cur.username]: cur };
+        }, {});
+
+        setAppKeyrings(_appKeyrings);
         setStatus('unlocked');
+
+        const _activeAccUsername = activeAccountUsername ? activeAccountUsername : Object.keys(_appKeyrings)[0];
+        setActiveAccUsername(_activeAccUsername);
+        setActiveAccount(_appKeyrings[_activeAccUsername]);
+        localStorage.setItem('activeAccountUsername', _activeAccUsername);
+
+        return true;
       } catch (e) {
         throw new Error('Incorrect password');
       }
@@ -124,13 +144,11 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     console.log('ENCRYPT:', serializedKeyrings, _keyrings);
 
     const { vault: newVault, exportedKeyString } = await encryptor.encryptWithDetail(password, serializedKeyrings);
-
     console.log(vault);
 
     // Note: these keys and salt can be used with webAuthn to unlock the vault using biometrics
     // encryptionKey = exportedKeyString;
     // encryptionSalt = JSON.parse(newVault).salt;
-
     localStorage.setItem('vault', newVault);
     setVault(newVault);
   };
@@ -175,7 +193,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     const isDeviceRegistered = isAccountDeployed && (await accountContract.deviceKeys(deviceAddress));
 
     if (!isAccountDeployed || !isDeviceRegistered) {
-      registerDeviceKey({
+      const res = registerDeviceKey({
         provider,
         accountUsername,
         accountContract,
@@ -185,9 +203,11 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
         bundler,
       });
 
-      console.log('Device registered');
+      if (!res) throw new Error('Failed to register device key');
+
+      console.log('KEYRING: Device registered');
     } else {
-      console.log('device already registered');
+      console.log('KEYRING: Device already registered');
     }
 
     // save the keyring
@@ -196,12 +216,16 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
       signerKey: deviceWallet.privateKey,
     });
     const newKeyrings: Keyrings = { ...appKeyrings, [accountUsername]: _keyring };
-    console.log('keyring', _keyring);
+    console.log('KEYRING:', _keyring);
 
     encryptVault(pin, newKeyrings);
     setDeviceWallet(deviceWallet);
     setAppKeyrings(newKeyrings);
-    setSelectedAccount(newKeyrings[accountUsername]);
+    setStatus('unlocked');
+
+    setActiveAccount(newKeyrings[accountUsername]);
+    setActiveAccUsername(accountUsername);
+    localStorage.setItem('activeAccountUsername', accountUsername);
 
     return true;
   };
@@ -248,8 +272,8 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
         status,
         error,
         paymasterAPI,
-        accounts,
-        selectedAccount,
+        // accounts,
+        activeAccount: activeAccount,
         unlockVault,
         initDeviceWithPin,
       }}>

@@ -54,6 +54,7 @@ export async function getHumanAccount({
   });
 
   await sw.getAccountAddress();
+  sw.accountAddress = await sw.getAccountAddress();
 
   // Hack: default getUserOpReceipt does not include fromBlock which causes an error for some RPC providers.
   sw.getUserOpReceipt = async (userOpHash: string, timeout = 30000, interval = 5000): Promise<string | null> => {
