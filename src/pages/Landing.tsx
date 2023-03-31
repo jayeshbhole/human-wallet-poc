@@ -1,11 +1,37 @@
-import React from 'react';
+import { Box, Image } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { OnboardingActionButton } from '../components/Onboarding';
+import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../components/Onboarding/headings';
 
 const Landing = () => {
+  const navigate = useNavigate();
   return (
-    <div className="p-0 flex flex-col items-center h-full ">
-      <div className="w-full flex-1 rounded-xl bg-primaryText/30"></div>
-      <div className="h-[40%]">buttons and stuff</div>
-    </div>
+    <>
+      <Box h="25%">
+        <Image
+          src="/world.png"
+          alt="world"
+          pos="absolute"
+          top="0"
+          left="0"
+          w="full"
+          borderRadius="2xl"
+        />
+      </Box>
+      <Box mt="auto">
+        <HeadingBox>
+          <StepTitle>
+            <>
+              Welcome to <br />
+              <HeadingEmphasis>One Wallet</HeadingEmphasis>
+            </>
+          </StepTitle>
+          <StepDescription>One Wallet for all crypto needs.</StepDescription>
+        </HeadingBox>
+      </Box>
+
+      <OnboardingActionButton onClick={() => navigate('/onboarding/phone-input')}>Get Started</OnboardingActionButton>
+    </>
   );
 };
 
