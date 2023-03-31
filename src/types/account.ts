@@ -23,7 +23,7 @@ interface DeserializeState {
 interface HumanAccountApiParamsType<T> extends HumanAccountApiParams {
   context?: T;
   deserializeState?: DeserializeState;
-  signerWallet: Wallet | undefined;
+  signerWallet: Wallet;
 }
 
 type Vault = {

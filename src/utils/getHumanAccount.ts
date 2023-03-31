@@ -1,32 +1,59 @@
-// import { SimpleAccountAPI } from "@account-abstraction/sdk";
-import { HumanAccountAPI, PaymasterAPI } from '@humanwallet/sdk';
-import { ethers } from 'ethers';
 import { JsonRpcProvider } from '@ethersproject/providers';
+import { VerifyingPaymaster } from '@humanwallet/contracts';
+import { ethers, Wallet } from 'ethers';
+import { DeserializeState } from '../types/account';
+import HumanAccountClientAPI from './account-api';
+import { VerifyingPaymasterAPI } from './getPaymaster';
 
-export function getHumanAccount(
-  provider: JsonRpcProvider,
-  ownerKey: string,
-  signingKey: string,
-  entryPointAddress: string,
-  factoryAddress: string,
-  username: string,
-  paymasterAPI?: PaymasterAPI
-) {
-  const ownerWallet = new ethers.Wallet(ownerKey, provider);
-  const ownerSigner = ownerWallet.connect(provider);
+export async function getHumanAccount({
+  provider,
+  accountUsername,
+  ownerAddress,
+  ownerWallet,
+  signerWallet,
+  entryPointAddress,
+  deserializeState,
+  paymasterAPI,
+}: {
+  provider: JsonRpcProvider;
+  accountUsername: string;
+  ownerAddress: string;
+  ownerWallet?: Wallet;
+  signerWallet?: Wallet;
+  entryPointAddress: string;
+  deserializeState?: DeserializeState;
+  paymasterAPI?: VerifyingPaymasterAPI;
+}) {
+  let _signerWallet: Wallet;
 
-  const opWallet = new ethers.Wallet(signingKey, provider);
-  const opSigner = opWallet.connect(provider);
+  // owner wallet is the signer
+  if (ownerWallet) {
+    _signerWallet = ownerWallet;
+  } else {
+    // owner wallet not available
+    if (signerWallet) {
+      // given signer
+      _signerWallet = signerWallet;
+    } else {
+      // generate a new signer if deserialieState does not contain a key
+      _signerWallet = deserializeState?.data.signerKey
+        ? new ethers.Wallet(deserializeState?.data.signerKey)
+        : new ethers.Wallet(import.meta.env.VITE_SIGNER_PRIVATE_KEY ?? '');
+    }
+  }
 
-  const sw = new HumanAccountAPI({
-    provider,
-    entryPointAddress,
-    owner: ownerSigner,
-    factoryAddress,
-    signer: opSigner,
-    username,
-    paymasterAPI,
+  const sw = new HumanAccountClientAPI({
+    provider: provider,
+    username: accountUsername,
+    owner: ownerWallet,
+    signer: _signerWallet,
+    signerWallet: _signerWallet,
+    ownerAddress: ownerAddress,
+    entryPointAddress: entryPointAddress,
+    paymasterAPI: paymasterAPI,
   });
+
+  await sw.getAccountAddress();
 
   // Hack: default getUserOpReceipt does not include fromBlock which causes an error for some RPC providers.
   sw.getUserOpReceipt = async (userOpHash: string, timeout = 30000, interval = 5000): Promise<string | null> => {

@@ -18,30 +18,16 @@ class HumanAccountClientAPI extends HumanAccountAPI {
   constructor(params: HumanAccountApiParamsType<{}>) {
     super(params);
     this.username = params.username;
-    this.accountAddress = params.accountAddress;
     this.factoryAddress = FACTORY_ADDRESS;
 
-    if (params.signerWallet) {
-      this.signerWallet = params.signerWallet;
-      this.signer = params.signerWallet;
-    } else {
-      const wallet = params.deserializeState?.data.signerKey
-        ? new ethers.Wallet(params.deserializeState?.data.signerKey)
-        : ethers.Wallet.createRandom();
-      this.signer = wallet;
-      this.signerWallet = wallet;
-    }
+    this.signer = params.signerWallet;
+    this.signerWallet = params.signerWallet;
+    // const wallet = params.deserializeState?.data.signerKey
+    //   ? new ethers.Wallet(params.deserializeState?.data.signerKey)
+    //   : new ethers.Wallet(import.meta.env.VITE_SIGNER_PRIVATE_KEY ?? '');
+    // : ethers.Wallet.createRandom();
 
     this.index = params.index ?? 0;
-
-    console.debug('// HumanAccountClientAPI', {
-      username: this.username,
-      accountAddress: this.accountAddress,
-      factoryAddress: this.factoryAddress,
-      index: this.index,
-      signer: this.signer,
-      signerWallet: this.signerWallet,
-    });
   }
 
   serialize = async (): Promise<DeserializeState> => {
