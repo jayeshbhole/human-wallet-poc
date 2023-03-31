@@ -1,7 +1,7 @@
 import { Box, ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom';
 import { KeyringContextProvider } from './contexts/KeyringContext';
 import OnboardingContextProvider from './contexts/OnboardingContext';
 import ErrorPage from './pages/Error';
@@ -43,6 +43,7 @@ const router = createBrowserRouter([
       </RequireUnlock>
     ),
     children: [
+      { path: '', element: <Navigate to="/wallet/home" /> },
       { path: 'home', element: <Home />, index: true },
       { path: 'send', element: <Send /> },
       { path: 'receive', element: <Receive /> },
