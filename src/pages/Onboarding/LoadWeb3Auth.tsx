@@ -12,12 +12,16 @@ const LoadWeb3Auth = () => {
     if (web3Auth) {
       setTimeout(() => {
         if (!firebaseUser) {
-          navigate('/onboarding');
+          navigate('/onboarding', {
+            replace: true,
+          });
         }
         if (!ownerPubKey) {
           getOwnerKeysAndNavigate(web3Auth);
         } else {
-          navigate('/onboarding/fetchAccounts');
+          navigate('/onboarding/fetchAccounts', {
+            replace: true,
+          });
         }
       }, 1000);
     }

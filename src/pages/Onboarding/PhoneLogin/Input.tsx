@@ -18,7 +18,9 @@ const PhoneLoginInput = () => {
   useEffect(() => {
     if (firebaseUser?.phoneNumber) {
       setPhoneNumber(firebaseUser?.phoneNumber || '');
-      navigate('/onboarding/web3Auth');
+      navigate('/onboarding/web3Auth', {
+        replace: true,
+      });
     }
   }, [firebaseUser]);
 

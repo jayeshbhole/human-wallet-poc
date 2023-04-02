@@ -190,7 +190,9 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
       }
       await _requestOTP(phoneNumber);
       // setStep(OnboardingStep.PHONE_VERIFY);
-      navigate('/onboarding/phone-verify');
+      navigate('/onboarding/phone-verify', {
+        replace: true,
+      });
 
       return true;
     },
@@ -208,7 +210,9 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
         const loginRes = await confirmationResult.confirm(verificationCode);
         setFirebaseUser(loginRes.user);
 
-        navigate('/onboarding/web3Auth');
+        navigate('/onboarding/web3Auth', {
+          replace: true,
+        });
       } catch (err) {
         console.debug(err);
       }
@@ -258,7 +262,9 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
   const getOwnerKeysAndNavigate = useCallback(async () => {
     const _provider = await getOwnerKeys();
     if (_provider) {
-      navigate('/onboarding/fetchAccounts');
+      navigate('/onboarding/fetchAccounts', {
+        replace: true,
+      });
     }
   }, [getOwnerKeys, navigate]);
 
@@ -289,7 +295,9 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
 
   const selectUsername = useCallback(async (_username: string) => {
     setAccountUsername(_username);
-    navigate('/onboarding/select-pin');
+    navigate('/onboarding/select-pin', {
+      replace: true,
+    });
   }, []);
 
   const handlePinSubmit = useCallback(
@@ -319,7 +327,9 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
           return;
         }
 
-        navigate('/onboarding/final');
+        navigate('/onboarding/final', {
+          replace: true,
+        });
       } catch (err) {
         console.error(err);
       }

@@ -16,13 +16,19 @@ const FetchAccounts = () => {
 
         timeout = setTimeout(async () => {
           if (accounts.length) {
-            navigate('/onboarding/select-account');
+            navigate('/onboarding/select-account', {
+              replace: true,
+            });
           } else {
-            navigate('/onboarding/select-username');
+            navigate('/onboarding/select-username', {
+              replace: true,
+            });
           }
         }, 2000);
       } else {
-        navigate('/onboarding/web3auth');
+        navigate('/onboarding/web3auth', {
+          replace: true,
+        });
       }
     })();
     return () => timeout && clearTimeout(timeout);
