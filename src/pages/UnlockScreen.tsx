@@ -42,9 +42,8 @@ const UnlockScreen = () => {
 
   return (
     <Box
-      px={6}
-      pt={6}
-      pb={4}
+      px={10}
+      py={10}
       display="flex"
       flexDirection="column"
       height="100%"
