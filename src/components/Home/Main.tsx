@@ -3,6 +3,7 @@ import { ArrowDownTrayIcon } from '../../assets/Icon/ArrowDownTray';
 import { ArrowUpTrayIcon } from '../../assets/Icon/ArrowUpTray';
 import { CurrencyETH } from '../../assets/Icon/CurrencyETH';
 import ActionsPreview from './ActionsPreview';
+import CurrencyBalances from './CurrencyBalances';
 import QuickActionButton from './QuickActionButton';
 
 const MainSection = () => {
@@ -10,8 +11,9 @@ const MainSection = () => {
     <Flex
       direction="column"
       w="100%"
-      gap="8">
-      <Section mt="-6">
+      gap="8"
+      mt="20">
+      <Section>
         {/* total worth */}
         <Text
           as="span"
@@ -34,6 +36,9 @@ const MainSection = () => {
       <Box border="1px solid #04100F16" />
 
       {/* balances section */}
+      <Section>
+        <CurrencyBalances />
+      </Section>
     </Flex>
   );
 };

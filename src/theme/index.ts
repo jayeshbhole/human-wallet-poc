@@ -42,7 +42,6 @@ export const styles = {
       width: '100%',
       height: '100%',
       borderRadius: '1rem',
-      // padding: '1rem',
       backgroundColor: colors.bg.primary,
     },
   }),

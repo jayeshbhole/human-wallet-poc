@@ -17,10 +17,12 @@ const Home = () => {
 
   return (
     <Flex
+      height="100%"
       direction="column"
       w="100%"
       gap="8"
-      py="4">
+      pb="4"
+      overflowY="auto">
       {/* Header flex */}
       <Header
         seed={seed}

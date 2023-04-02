@@ -6,9 +6,15 @@ import HumanAccountClientAPI from '../../utils/account-api';
 const Header = ({ seed, activeAccount }: { seed: number; activeAccount: HumanAccountClientAPI | undefined }) => {
   return (
     <Flex
+      position="absolute"
+      top="0"
       justifyItems="space-between"
       alignItems="center"
       gap="3"
+      pt="4"
+      w="full"
+      bg="white"
+      roundedTop="2xl"
       px={6}>
       {/* react jazzicon */}
       <Icon

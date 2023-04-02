@@ -1,5 +1,4 @@
 import { Box, Button, Flex, Text } from '@chakra-ui/react';
-import React from 'react';
 
 const ActionsPreview = () => {
   const actions = [
@@ -25,13 +24,7 @@ const ActionsPreview = () => {
           fontWeight="600">
           Take Actions {actions.length ? `(${actions.length})` : ''}
         </Text>
-        {/* <Text
-          as="span"
-          ml="auto"
-          color="blue.500"
-          fontWeight="600">
-          See all
-        </Text> */}
+
         {actions.length > 2 && (
           <Button
             variant="link"
@@ -57,7 +50,7 @@ const ActionsPreview = () => {
               direction="column"
               gap="1"
               p="4"
-              w="18ch"
+              w="16ch"
               rounded="2xl"
               bg="blackAlpha.50">
               <Text
