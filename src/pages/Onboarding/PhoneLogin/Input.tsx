@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { OnboardingActionButton } from '../../../components/Onboarding';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../../components/Onboarding/headings';
 import PhoneInput from '../../../components/PhoneInput';
@@ -6,6 +7,7 @@ import { OnboardingContext } from '../../../contexts/OnboardingContext';
 
 const PhoneLoginInput = () => {
   const { firebaseUser, handlePhoneSubmit } = useContext(OnboardingContext);
+  const navigate = useNavigate();
 
   const [phoneNumber, setPhoneNumber] = useState(firebaseUser?.phoneNumber || '');
 
@@ -16,6 +18,7 @@ const PhoneLoginInput = () => {
   useEffect(() => {
     if (firebaseUser?.phoneNumber) {
       setPhoneNumber(firebaseUser?.phoneNumber || '');
+      navigate('/onboarding/web3Auth');
     }
   }, [firebaseUser]);
 

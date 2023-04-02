@@ -5,9 +5,9 @@ import { Outlet } from 'react-router-dom';
 const OnboardingLayout = () => {
   return (
     <Box
-      px={6}
-      pt={6}
-      pb={4}
+      px={10}
+      pt={10}
+      pb={10}
       display="flex"
       flexDirection="column"
       height="100%"

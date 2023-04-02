@@ -19,7 +19,7 @@ const SelectAccount = () => {
           <>
             Found
             <br />
-            <HeadingEmphasis>Your Accoount</HeadingEmphasis>
+            <HeadingEmphasis>Your Account</HeadingEmphasis>
           </>
         </StepTitle>
         <StepDescription>

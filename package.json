@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^2.0.18",
     "@chakra-ui/react": "^2.5.2",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
@@ -28,6 +29,7 @@
     "libphonenumber-js": "^1.10.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-jazzicon": "^1.0.4",
     "react-phone-number-input": "^3.2.19",
     "react-router-dom": "^6.8.2",
     "source-map-loader": "^4.0.1"

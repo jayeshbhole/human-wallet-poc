@@ -38,9 +38,9 @@ const router = createBrowserRouter([
   {
     path: '/wallet',
     element: (
-      <RequireUnlock>
-        <Outlet />
-      </RequireUnlock>
+      // <RequireUnlock>
+      <Outlet />
+      // </RequireUnlock>
     ),
     children: [
       { path: '', element: <Navigate to="/wallet/home" /> },
