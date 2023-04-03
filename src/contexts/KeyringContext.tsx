@@ -13,6 +13,7 @@ import { printOp } from '../utils/opUtils';
 import registerDeviceKey from '../utils/registerDeviceKey';
 
 interface KeyringContext {
+  vault: string;
   keyrings: { [address: string]: HumanAccountClientAPI };
 
   status: 'locked' | 'unlocked' | 'uninitialized';
@@ -37,6 +38,7 @@ interface KeyringContext {
 }
 
 export const KeyringContext = createContext<KeyringContext>({
+  vault: '',
   keyrings: {},
   error: undefined,
   status: 'locked',
@@ -268,6 +270,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   return (
     <KeyringContext.Provider
       value={{
+        vault,
         keyrings: appKeyrings,
         status,
         error,
