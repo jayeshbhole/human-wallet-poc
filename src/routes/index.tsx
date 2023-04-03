@@ -1,4 +1,4 @@
-import { Box, Spinner } from '@chakra-ui/react';
+import { Box, Image, Spinner } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useKeyringContext } from '../contexts/KeyringContext';
@@ -9,15 +9,17 @@ const LoadingSplashScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (vault) {
-      navigate('/wallet', {
-        replace: true,
-      });
-    } else {
-      navigate('/onboarding', {
-        replace: true,
-      });
-    }
+    setTimeout(() => {
+      if (vault) {
+        navigate('/wallet', {
+          replace: true,
+        });
+      } else {
+        navigate('/onboarding', {
+          replace: true,
+        });
+      }
+    }, 2500);
   }, [vault, navigate]);
 
   return (
@@ -26,6 +28,13 @@ const LoadingSplashScreen = () => {
       height="100%"
       flexDirection="column"
       justifyContent="space-between">
+      <Image
+        src="/logo-512.png"
+        alt="logo"
+        width={200}
+        height={200}
+        m="auto"
+      />
       <Spinner
         size="xl"
         speed="0.75s"
