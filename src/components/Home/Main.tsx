@@ -1,6 +1,8 @@
 import { Box, ChakraComponent, Flex, Icon, Text } from '@chakra-ui/react';
+// import { ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { ArrowDownTrayIcon } from '../../assets/Icon/ArrowDownTray';
+import { ShieldCheckIcon } from '../../assets/Icon/ShieldCheck';
 import { ArrowUpTrayIcon } from '../../assets/Icon/ArrowUpTray';
 import { CurrencyETH } from '../../assets/Icon/CurrencyETH';
 import ActionsPreview from './ActionsPreview';
@@ -84,6 +86,16 @@ const QuickActionButtons = () => {
           />
         }
         label="Receive"
+      />
+      <QuickActionButton
+        icon={
+          <Icon
+            w="7"
+            h="7"
+            as={ShieldCheckIcon}
+          />
+        }
+        label="Security"
       />
       <QuickActionButton
         icon={
