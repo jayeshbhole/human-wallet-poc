@@ -1,21 +1,9 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Grid,
-  Heading,
-  IconButton,
-  Input,
-  InputGroup,
-  InputRightAddon,
-  Spacer,
-  Text,
-} from '@chakra-ui/react';
-import { ArrowsUpDownIcon } from '@heroicons/react/24/outline';
+import { Box, Button, Flex, Grid, Heading, Icon, Input, Spacer, Text } from '@chakra-ui/react';
+import { BriefcaseIcon, ClipboardIcon, NewspaperIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import { ScanQR } from '../../assets/Icon/ScanQR';
 import BackButton from '../../components/BackButton';
-import Keypad from '../../components/Keypad';
-import useDigitInputs from '../../hooks/useDigitInputs';
+import { useKeyringContext } from '../../contexts/KeyringContext';
 
 const Send = () => {
   const [currency, setCurrency] = useState('USD');
@@ -27,10 +15,14 @@ const Send = () => {
   // currency value in USD
   const [value, setValue] = useState('');
 
+  const { activeAccount } = useKeyringContext();
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // amount should always have the token suffix
     const { value } = e.target;
-    setAmount(Number(value).toString());
+    if (!Number.isNaN(Number(value))) {
+      setAmount(Number(value).toString());
+    }
   };
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // value should always have a $ prefix
@@ -59,11 +51,12 @@ const Send = () => {
         py="8"
         px="8"
         pb="4">
+        {/* Page Header */}
         <Grid
           templateColumns="3rem 1fr 3rem"
           justifyItems="center"
           alignItems="center">
-          <BackButton />
+          <BackButton justifySelf="start" />
 
           <Heading
             as="h3"
@@ -71,149 +64,175 @@ const Send = () => {
             fontWeight="500"
             fontSize="2xl"
             textAlign="center">
-            Send
+            Send ETH
           </Heading>
         </Grid>
 
-        {/* Amount Input */}
         <Flex
-          position="relative"
-          alignSelf="center"
           direction="column"
-          w="28ch"
-          alignItems="center">
-          {/* nation currency input */}
-          <Input
-            value={inputMode === 'amount' ? amount : value}
-            onChange={inputMode === 'amount' ? handleAmountChange : handleValueChange}
-            placeholder="$ 0"
-            variant="outline"
-            h="auto"
-            p="4"
-            w="full"
-            fontSize="4xl"
-            fontWeight="400"
-            textAlign="center"
-            background="gray.50"
-            border="2px solid"
-            borderRadius="1rem 1rem 0px 0px"
-            borderColor="gray.200"
-            lineHeight="0"
-            _placeholder={{
-              color: 'blackAlpha.600',
-            }}
-            _hover={{
-              borderColor: 'gray.400',
-            }}
-            _focusVisible={{
-              borderColor: '#05B200',
-            }}
-          />
-
-          {/* switch mode button */}
-          <IconButton
-            onClick={() => setInputMode(inputMode === 'amount' ? 'value' : 'amount')}
-            position="absolute"
-            top="4.8rem"
-            right="-4"
-            transform="translateY(-50%)"
-            aria-label="Switch Mode"
-            icon={<ArrowsUpDownIcon />}
-            w="9"
-            minW="9"
-            h="9"
-            variant="ghost"
-            color="gray.500"
-            background="gray.200"
-            p="0.5rem"
-            border="1px solid"
-            borderRadius="xl"
-            borderColor="gray.500"
-          />
-
+          gap="4">
+          {/* recipient quick actions */}
           <Flex
-            direction="column"
-            textAlign="center"
-            w="full"
-            fontWeight="400"
-            border="2px solid"
-            borderRadius="0px 0px 1rem 1rem"
-            borderColor="gray.100"
-            mt="-2px"
-            background="gray.50"
-            alignItems="center"
-            justifyItems="center"
-            fontSize="2xl"
-            color="blackAlpha.600"
-            p="4">
-            <Text as="span">
-              {(inputMode === 'amount' ? value : amount) || 0} {inputMode === 'amount' ? 'USD' : token}
-            </Text>
-            <Text
-              as="span"
-              fontSize="xs"
-              color="blackAlpha.500">
-              Balance {balance || '0.00'} {token}
-            </Text>
+            direction="row"
+            justify="space-between"
+            align="center"
+            w="full">
+            <RecipientQuickButton
+              label="Scan QR"
+              icon={ScanQR}
+              onClick={() => {}}
+              isDisabled
+            />
+            <RecipientQuickButton
+              label="Contacts"
+              icon={NewspaperIcon}
+              onClick={() => {}}
+              isDisabled
+            />
+            <RecipientQuickButton
+              label="Paste"
+              icon={ClipboardIcon}
+              onClick={() => {}}
+            />
           </Flex>
 
-          {/* crypto currency input */}
-          {/* <Flex
-          w="full"
-          fontWeight="400"
-          border="2px solid"
-          borderRadius="0px 0px 1rem 1rem"
-          borderColor="gray.100"
-          mt="-2px"
-          background="gray.50"
-          alignItems="center"
-          justifyItems="center"
-          fontSize="2xl"
-          color="blackAlpha.600"
-          px="4">
-          <Input
-            value={amount}
-            onChange={handleAmountChange}
-            py="4"
-            variant="unstyled"
-            fontSize="2xl"
-            w="fit-content"
-            textAlign="center"
-            lineHeight="0"
-            rounded="xl"
-            _placeholder={{
-              color: 'blackAlpha.500',
-            }}
-            _hover={{
-              borderColor: 'gray.300',
-            }}
-            _focusVisible={{
-              borderColor: '#05B200',
-            }}
-          />
+          {/* recipient */}
+          <Flex
+            bg="gray.50"
+            direction="column"
+            rounded="2xl"
+            gap="1"
+            border="1px solid"
+            borderColor="blackAlpha.200"
+            p="4"
+            transition="all 0.2s ease"
+            _focusWithin={{
+              border: '1px solid',
+              borderColor: 'blackAlpha.400',
+            }}>
+            <Text
+              as="span"
+              color="blackAlpha.600"
+              fontSize="sm"
+              fontWeight="600">
+              Send To
+            </Text>
+
+            <Input
+              variant="unstyled"
+              fontSize="lg"
+              fontWeight="600"
+              color="blackAlpha.700"
+              _placeholder={{ color: 'blackAlpha.500' }}
+              placeholder="Address / Username / ENS"
+              rounded="none"
+            />
+          </Flex>
+        </Flex>
+
+        {/* Amount Input */}
+        <Flex
+          bg="gray.50"
+          direction="column"
+          rounded="2xl"
+          gap="1"
+          border="1px solid"
+          borderColor="blackAlpha.200"
+          p="4"
+          transition="all 0.2s ease"
+          _focusWithin={{
+            border: '1px solid',
+            borderColor: 'blackAlpha.400',
+          }}>
           <Text
-            fontSize="2xl"
             as="span"
-            pointerEvents="none"
-            userSelect="none"
-            children={token}
-          />
-        </Flex> */}
+            color="blackAlpha.600"
+            fontSize="sm"
+            fontWeight="600">
+            Amount
+          </Text>
+
+          <Flex
+            direction="row"
+            align="center"
+            justify="space-between">
+            <Input
+              type="text"
+              onClick={handleAmountChange}
+              variant="unstyled"
+              fontSize="lg"
+              fontWeight="600"
+              color="blackAlpha.700"
+              _placeholder={{ color: 'blackAlpha.500' }}
+              placeholder="0.00"
+              rounded="none"
+            />
+
+            <Button
+              h="8"
+              minH="8">
+              {token}
+            </Button>
+          </Flex>
         </Flex>
       </Flex>
 
       <Spacer />
       {/* Divider */}
-      <Box border="1px solid #04100F16" />
+      {/* <Box border="1px solid #04100F16" /> */}
 
       <Flex
         direction="column"
         w="full"
         p="8"
-        gap="8">
-        {/*  */}
-        {/* <Keypad onKeypadClick={handleKeyPadClick} /> */}
+        gap="3">
+        <Flex
+          justifyContent="space-between"
+          px="2">
+          <Text
+            as="span"
+            color="blackAlpha.600"
+            fontSize="sm"
+            fontWeight="600">
+            Send on
+            <Text
+              as="span"
+              ml="2"
+              textDecor="underline">
+              Goerli
+            </Text>
+          </Text>
 
+          <Text
+            as="span"
+            color="blackAlpha.600"
+            fontSize="sm"
+            fontWeight="600">
+            Fees $0.10
+          </Text>
+        </Flex>
+        <Flex
+          direction="row"
+          justifyContent="space-between"
+          align="center"
+          p="4"
+          rounded="2xl"
+          bg="blackAlpha.50">
+          <Text
+            as="span"
+            color="blackAlpha.700"
+            fontWeight="600">
+            {activeAccount?.username ?? 'username'}
+          </Text>
+
+          <Icon
+            w="6"
+            h="6"
+            as={BriefcaseIcon}
+            strokeWidth="1.5"
+            color="blackAlpha.600"
+          />
+        </Flex>
         <Button
           variant="solid"
           w="full"
@@ -229,10 +248,46 @@ const Send = () => {
           _active={{ opacity: 1 }}
           _disabled={{ opacity: 0.75, cursor: 'not-allowed' }}
           onClick={() => {}}>
-          Choose Recipient
+          Send ETH
         </Button>
       </Flex>
     </Flex>
+  );
+};
+
+const RecipientQuickButton = ({
+  onClick,
+  label,
+  icon,
+  isDisabled,
+}: {
+  onClick: () => void;
+  label: string;
+  icon: any;
+  isDisabled?: boolean;
+}) => {
+  return (
+    <Button
+      variant="ghost"
+      px="2"
+      py="2"
+      backgroundColor="gray.100"
+      color="blackAlpha.700"
+      fontWeight="700"
+      fontSize="sm"
+      rounded="xl"
+      _hover={{ bg: 'gray.200' }}
+      isDisabled={isDisabled}
+      onClick={onClick}>
+      <Icon
+        color="blackAlpha.700"
+        as={icon}
+        w="1.5rem"
+        h="1.5rem"
+        mr="2"
+      />
+      {label}
+    </Button>
   );
 };
 
