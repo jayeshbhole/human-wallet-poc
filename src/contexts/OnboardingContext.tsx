@@ -60,6 +60,7 @@ interface OnboardingContext {
   setStep: (step: number) => void;
   setMode: (mode: OnboardingStep) => void;
   handlePhoneSubmit: (phoneNumber: string) => Promise<boolean>;
+  handleResendOTP: () => Promise<void>;
   handleVerifyOTP: (otp: string) => void;
   getOwnerKeysAndNavigate: (web3Auth?: Web3Auth) => Promise<void>;
   selectUsername: (username: string) => Promise<void>;
@@ -81,6 +82,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
   setMode: (mode: OnboardingStep) => {},
 
   handlePhoneSubmit: (phoneNumber: string) => Promise.resolve(false),
+  handleResendOTP: () => Promise.resolve(),
   handleVerifyOTP: (otp: string) => {},
   getOwnerKeysAndNavigate: (web3Auth?: Web3Auth) => Promise.resolve(),
   selectUsername: (username: string) => Promise.resolve(),
@@ -220,6 +222,14 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
     [confirmationResult]
   );
 
+  const handleResendOTP = useCallback(async () => {
+    if (!phoneNumber) {
+      console.debug('CONTEXT: phone number not set yet');
+      return;
+    }
+    await _requestOTP(phoneNumber);
+  }, [_requestOTP, phoneNumber]);
+
   const getOwnerKeys = useCallback(async () => {
     if (!web3Auth) {
       console.error('WEB3AUTH: web3auth not initialized yet');
@@ -353,6 +363,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
         setStep: (step: number) => {},
         setMode: (mode: OnboardingStep) => {},
         handlePhoneSubmit,
+        handleResendOTP,
         handleVerifyOTP,
         getOwnerKeysAndNavigate,
         selectUsername,

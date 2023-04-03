@@ -7,7 +7,7 @@ const RE_DIGIT = new RegExp(/^\d+$/);
 
 const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateAction<string>> }) => {
   const onChange = (value: string) => setOTP(value);
-  const { requestOTP, firebaseUser, canResendOTP } = useContext(OnboardingContext);
+  const { handleResendOTP, canResendOTP } = useContext(OnboardingContext);
 
   const valueItems = useMemo(() => {
     const valueArray = value.split('');
@@ -127,9 +127,6 @@ const OTPInput = ({ value, setOTP }: { value: string; setOTP: Dispatch<SetStateA
       inputOnChange({ target, currentTarget: target } as any, lastInputIdx + 1);
     }
   };
-
-  const handleResendOTP = () =>
-    firebaseUser?.phoneNumber ? requestOTP(firebaseUser.phoneNumber) : console.error('no phone number');
 
   return (
     <>
