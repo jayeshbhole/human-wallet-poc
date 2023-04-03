@@ -42,7 +42,7 @@ const Header = ({ seed, activeAccount }: { seed: number; activeAccount: HumanAcc
           as="span"
           fontSize="lg"
           fontWeight="500">
-          {activeAccount?.username ?? 'alicepays'}
+          {activeAccount?.username ?? 'username'}
           <Text
             as="span"
             fontSize="lg"

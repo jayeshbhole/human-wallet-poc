@@ -16,8 +16,8 @@ const BackButton = ({ ...props }) => {
       p="1"
       variant="outline"
       borderWidth="1.5px"
-      color="blackAlpha.400"
-      borderColor="blackAlpha.400"
+      color="blackAlpha.600"
+      borderColor="blackAlpha.600"
       _hover={{
         color: 'blackAlpha.700',
         borderColor: 'blackAlpha.700',

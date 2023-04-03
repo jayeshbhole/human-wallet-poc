@@ -1,4 +1,5 @@
 import { Box, ChakraComponent, Flex, Icon, Text } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowDownTrayIcon } from '../../assets/Icon/ArrowDownTray';
 import { ArrowUpTrayIcon } from '../../assets/Icon/ArrowUpTray';
 import { CurrencyETH } from '../../assets/Icon/CurrencyETH';
@@ -12,7 +13,7 @@ const MainSection = () => {
       direction="column"
       w="100%"
       gap="8"
-      mt="20">
+      mt="24">
       <Section>
         {/* total worth */}
         <Text
@@ -58,9 +59,13 @@ const Section: ChakraComponent<'section', {}> = ({ children, ...props }) => {
 
 /* quick access buttons */
 const QuickActionButtons = () => {
+  const navigate = useNavigate();
+
+  const handleSend = () => navigate('/wallet/send');
   return (
     <Flex gap="4">
       <QuickActionButton
+        onClick={handleSend}
         icon={
           <Icon
             w="7"

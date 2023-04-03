@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Icon } from '@chakra-ui/react';
+import { Button, Grid, Icon } from '@chakra-ui/react';
 import { BackspaceIcon } from '@heroicons/react/24/outline';
 
 const KeypadButton = ({
@@ -19,7 +19,7 @@ const KeypadButton = ({
         onKeypadClick(value);
       }}
       fontSize="xl"
-      rounded="xl"
+      rounded="1.25rem"
       w="5ch"
       h="5ch"
       color="blackAlpha.600"
