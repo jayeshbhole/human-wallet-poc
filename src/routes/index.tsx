@@ -1,25 +1,38 @@
-import { Box, Button } from '@chakra-ui/react';
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Box, Spinner } from '@chakra-ui/react';
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useKeyringContext } from '../contexts/KeyringContext';
+import { OnboardingContext } from '../contexts/OnboardingContext';
 
 const LoadingSplashScreen = () => {
-  const [loading, setLoading] = useState(true);
+  const { vault } = useKeyringContext();
+  const navigate = useNavigate();
 
-  return loading ? (
+  useEffect(() => {
+    if (vault) {
+      navigate('/wallet', {
+        replace: true,
+      });
+    } else {
+      navigate('/onboarding', {
+        replace: true,
+      });
+    }
+  }, [vault, navigate]);
+
+  return (
     <Box
       display="flex"
       height="100%"
       flexDirection="column"
       justifyContent="space-between">
-      LoadingSplashScreen
-      <Button
-        onClick={() => setLoading(false)}
-        backgroundColor={'#8BEBB2'}>
-        Set loading false
-      </Button>
+      <Spinner
+        size="xl"
+        speed="0.75s"
+        thickness="3px"
+        m="auto"
+      />
     </Box>
-  ) : (
-    <Navigate to="onboarding" />
   );
 };
 
