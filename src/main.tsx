@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom';
 import { KeyringContextProvider } from './contexts/KeyringContext';
-import OnboardingContextProvider from './contexts/OnboardingContext';
+import { OnboardingContextProvider } from './contexts/OnboardingContext';
 import ErrorPage from './pages/Error';
 import Landing from './pages/Landing';
 import FetchAccounts from './pages/Onboarding/FetchAccounts';
