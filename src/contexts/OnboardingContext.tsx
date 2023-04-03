@@ -88,7 +88,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
   findDeployedAccounts: () => Promise.resolve([]),
 });
 
-const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) => {
   // const [step, setStep] = useState<OnboardingStep>(OnboardingStep.PHONE_INPUT);
   // const [mode, setMode] = useState<OnboardingMode>(OnboardingMode.NONE);
 
@@ -367,5 +367,3 @@ const OnboardingContextProvider = ({ children }: { children: React.ReactNode }) 
     </OnboardingContext.Provider>
   );
 };
-
-export default memo(OnboardingContextProvider);
