@@ -45,10 +45,8 @@ const Header = ({ seed, activeAccount }: { seed: number; activeAccount: HumanAcc
           {activeAccount?.username ?? 'username'}
           <Text
             as="span"
-            fontSize="lg"
-            fontWeight="500"
             textColor="gray.400">
-            .one
+            @one
           </Text>
         </Text>
       </Flex>

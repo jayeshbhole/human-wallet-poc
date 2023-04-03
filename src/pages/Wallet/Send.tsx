@@ -223,6 +223,11 @@ const Send = () => {
             color="blackAlpha.700"
             fontWeight="600">
             {activeAccount?.username ?? 'username'}
+            <Text
+              as="span"
+              textColor="gray.400">
+              @one
+            </Text>
           </Text>
 
           <Icon

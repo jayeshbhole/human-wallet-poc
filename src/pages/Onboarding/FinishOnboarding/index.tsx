@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { OnboardingActionButton } from '../../../components/Onboarding';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../../components/Onboarding/headings';
@@ -49,6 +49,11 @@ const FinishOnboarding = () => {
           fontWeight="600"
           color="text.primary">
           {activeAccount?.username}
+          <Text
+            as="span"
+            textColor="gray.400">
+            @one
+          </Text>
         </Box>
         <Box
           zIndex="1"
