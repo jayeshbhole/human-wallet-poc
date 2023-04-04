@@ -45,44 +45,11 @@ const Send = () => {
     // get recipient data
     setRecipientError('');
     const getData = setTimeout(async () => {
-      if (recipient.endsWith('@uno')) {
-        const graphql = JSON.stringify({
-          query: HUMANACCOUNT_QUERY,
-          variables: { where: { username: recipient.split('@')[0] } },
-        });
-        const requestOptions = {
-          method: 'POST',
-          body: graphql,
-        };
-        const res = await fetch(SUBGRAPH_URL, requestOptions)
-          .then((response) => response.json())
-          .catch((error) => console.log('error', error));
-
-        if (res?.data?.humanAccounts?.length) {
-          setRecipientSuggestions(res.data.humanAccounts);
-        }
-      } else {
-        const ensAddress = await provider.resolveName(recipient);
-        if (ensAddress) {
-          // if recipient is ENS
-          setRecipientSuggestions([
-            {
-              address: ensAddress,
-              username: '',
-            },
-          ]);
-        } else if (isAddress(recipient)) {
-          // if recipient is address
-          setRecipientSuggestions([
-            {
-              address: recipient,
-              username: '',
-            },
-          ]);
-        } else {
+      if (recipient.length > 3)
+        if (recipient.endsWith('@uno')) {
           const graphql = JSON.stringify({
             query: HUMANACCOUNT_QUERY,
-            variables: { where: { username: recipient } },
+            variables: { where: { username: recipient.split('@')[0] } },
           });
           const requestOptions = {
             method: 'POST',
@@ -94,12 +61,46 @@ const Send = () => {
 
           if (res?.data?.humanAccounts?.length) {
             setRecipientSuggestions(res.data.humanAccounts);
+          }
+        } else {
+          const ensAddress = await provider.resolveName(recipient);
+          if (ensAddress) {
+            // if recipient is ENS
+            setRecipientSuggestions([
+              {
+                address: ensAddress,
+                username: '',
+              },
+            ]);
+          } else if (isAddress(recipient)) {
+            // if recipient is address
+            setRecipientSuggestions([
+              {
+                address: recipient,
+                username: '',
+              },
+            ]);
           } else {
-            setRecipientSuggestions(null);
-            setRecipientError('Invalid input');
+            const graphql = JSON.stringify({
+              query: HUMANACCOUNT_QUERY,
+              variables: { where: { username: recipient } },
+            });
+            const requestOptions = {
+              method: 'POST',
+              body: graphql,
+            };
+            const res = await fetch(SUBGRAPH_URL, requestOptions)
+              .then((response) => response.json())
+              .catch((error) => console.log('error', error));
+
+            if (res?.data?.humanAccounts?.length) {
+              setRecipientSuggestions(res.data.humanAccounts);
+            } else {
+              setRecipientSuggestions(null);
+              setRecipientError('Invalid input');
+            }
           }
         }
-      }
     }, 1000);
 
     return () => clearTimeout(getData);
