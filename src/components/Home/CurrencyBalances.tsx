@@ -14,10 +14,11 @@ const CurrencyBalances = () => {
         mt="4"
         direction="column"
         gap="2">
+        <Text color="blackAlpha.500">Token balances coming soon</Text>
+        {/* <CurrencyRow />
         <CurrencyRow />
         <CurrencyRow />
-        <CurrencyRow />
-        <CurrencyRow />
+        <CurrencyRow /> */}
       </Flex>
     </Box>
   );
