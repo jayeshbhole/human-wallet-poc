@@ -19,6 +19,16 @@ const RPC_URL = import.meta.env.VITE_RPC_URL ?? '';
 const BUNDLER_URL = import.meta.env.VITE_BUNDLER_URL ?? '';
 const SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/jayeshbhole/humanaccounts';
 
+enum SUPPORTED_NETWORKS {
+  // MAINNET = '0x1',
+  GOERLI = '0x5',
+}
+
+const NETWORK_IMAGES = {
+  '0x1': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+  '0x5': 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+};
+
 export {
   web3AuthClientId,
   verifier,
@@ -29,4 +39,6 @@ export {
   RPC_URL,
   BUNDLER_URL,
   SUBGRAPH_URL,
+  NETWORK_IMAGES,
+  SUPPORTED_NETWORKS,
 };

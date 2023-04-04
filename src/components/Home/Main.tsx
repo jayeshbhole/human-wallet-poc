@@ -97,7 +97,7 @@ const QuickActionButtons = () => {
         }
         label="Security"
       />
-      <QuickActionButton
+      {/* <QuickActionButton
         icon={
           <Icon
             w="7"
@@ -106,7 +106,7 @@ const QuickActionButtons = () => {
           />
         }
         label="Fees"
-      />
+      /> */}
     </Flex>
   );
 };

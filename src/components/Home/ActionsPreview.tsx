@@ -1,20 +1,35 @@
 import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { formatEther } from 'ethers/lib/utils';
+import { useEffect, useState } from 'react';
+import { useKeyringContext } from '../../contexts/KeyringContext';
+
+interface Action {
+  title: string;
+  description: string;
+}
+
+interface Actions {
+  [key: string]: Action;
+}
 
 const ActionsPreview = () => {
-  const actions = [
-    {
-      title: 'Add Funds',
-      description: 'Add funds to your wallet',
-    },
-    {
-      title: 'Connect Google',
-      description: 'Add your Google account',
-    },
-    {
-      title: 'Connect Google',
-      description: 'Add your Google account',
-    },
-  ];
+  const [actions, setActions] = useState<Actions>({});
+  const [goerliBalance, setGBalance] = useState<string>('0.00');
+  const { activeAccount, provider } = useKeyringContext();
+
+  useEffect(() => {
+    // get balance of account
+    if (activeAccount?.accountAddress) {
+      provider.getBalance(activeAccount.accountAddress).then((balance) => {
+        if (balance.isZero())
+          setActions((a: Actions) => ({
+            ...a,
+            add_funds: { title: 'Add Funds', description: 'Add funds to your wallet' },
+          }));
+      });
+    }
+  }, [activeAccount, provider]);
+
   return (
     <Box>
       <Flex>
@@ -25,7 +40,7 @@ const ActionsPreview = () => {
           Take Actions {actions.length ? `(${actions.length})` : ''}
         </Text>
 
-        {actions.length > 2 && (
+        {/* {actions.length > 2 && (
           <Button
             variant="link"
             ml="auto"
@@ -33,7 +48,7 @@ const ActionsPreview = () => {
             fontWeight="600">
             See all
           </Button>
-        )}
+        )} */}
       </Flex>
 
       <Box
@@ -44,30 +59,32 @@ const ActionsPreview = () => {
           gap="4"
           justifyItems="space-between"
           w="fit-content">
-          {actions.slice(0, 3).map((action, idx) => (
-            <Flex
-              key={idx}
-              direction="column"
-              gap="1"
-              p="4"
-              w="16ch"
-              rounded="2xl"
-              bg="blackAlpha.50">
-              <Text
-                as="span"
-                color="blackAlpha.700"
-                fontWeight="600">
-                {action.title}
-              </Text>
-              <Text
-                as="span"
-                color="blackAlpha.600"
-                fontSize="sm"
-                fontWeight="400">
-                {action.description}
-              </Text>
-            </Flex>
-          ))}
+          {Object.values(actions)
+            .slice(0, 3)
+            .map((action, idx) => (
+              <Flex
+                key={idx}
+                direction="column"
+                gap="1"
+                p="4"
+                w="16ch"
+                rounded="2xl"
+                bg="blackAlpha.50">
+                <Text
+                  as="span"
+                  color="blackAlpha.700"
+                  fontWeight="600">
+                  {action.title}
+                </Text>
+                <Text
+                  as="span"
+                  color="blackAlpha.600"
+                  fontSize="sm"
+                  fontWeight="400">
+                  {action.description}
+                </Text>
+              </Flex>
+            ))}
         </Flex>
       </Box>
     </Box>
