@@ -1,5 +1,6 @@
 import { Button, Flex, Grid, Heading, Icon, Spacer, Text } from '@chakra-ui/react';
 import { BriefcaseIcon } from '@heroicons/react/24/outline';
+import { BigNumberish, ethers } from 'ethers';
 import { isAddress } from 'ethers/lib/utils';
 import { useEffect, useState } from 'react';
 import BackButton from '../../components/BackButton';
@@ -18,16 +19,19 @@ query HumanAccounts($where: HumanAccount_filter) {
 
 const Send = () => {
   const [recipient, setRecipient] = useState('');
+  const [recipientAddress, setRecipientAddress] = useState('');
   const [recipientSuggestions, setRecipientSuggestions] = useState<any>(null);
   const [recipientError, setRecipientError] = useState('');
 
   const [token, setToken] = useState('ETH');
-  const [balance, setBalance] = useState('0.00');
+  const [balance, setBalance] = useState<BigNumberish>('0.00');
+
+  const [feeEstimate, setFeeEstimate] = useState<string>('0 ETH');
 
   // amount of currency to send
   const [amount, setAmount] = useState('');
 
-  const { activeAccount, provider } = useKeyringContext();
+  const { activeAccount, provider, bundler } = useKeyringContext();
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // amount should always have the token suffix
@@ -40,6 +44,15 @@ const Send = () => {
     const { value } = e.target;
     setRecipient(value);
   };
+
+  useEffect(() => {
+    // get balance of account
+    if (activeAccount?.accountAddress) {
+      provider
+        .getBalance(activeAccount.accountAddress)
+        .then((balance) => setBalance(ethers.utils.formatEther(balance)));
+    }
+  }, [activeAccount, provider]);
 
   useEffect(() => {
     // get recipient data
@@ -61,6 +74,7 @@ const Send = () => {
 
           if (res?.data?.humanAccounts?.length) {
             setRecipientSuggestions(res.data.humanAccounts);
+            setRecipientAddress(res.data.humanAccounts[0].address);
           }
         } else {
           const ensAddress = await provider.resolveName(recipient);
@@ -72,6 +86,7 @@ const Send = () => {
                 username: '',
               },
             ]);
+            setRecipientAddress(ensAddress);
           } else if (isAddress(recipient)) {
             // if recipient is address
             setRecipientSuggestions([
@@ -80,6 +95,7 @@ const Send = () => {
                 username: '',
               },
             ]);
+            setRecipientAddress(recipient);
           } else {
             const graphql = JSON.stringify({
               query: HUMANACCOUNT_QUERY,
@@ -95,8 +111,10 @@ const Send = () => {
 
             if (res?.data?.humanAccounts?.length) {
               setRecipientSuggestions(res.data.humanAccounts);
+              setRecipientAddress(res.data.humanAccounts[0].address);
             } else {
               setRecipientSuggestions(null);
+              setRecipientAddress('');
               setRecipientError('Invalid input');
             }
           }
@@ -105,6 +123,25 @@ const Send = () => {
 
     return () => clearTimeout(getData);
   }, [recipient]);
+
+  useEffect(() => {
+    const _getGasEst = setTimeout(async () => {
+      // get fee estimate
+      if (activeAccount && amount && isAddress(recipientAddress)) {
+        const unsignedUserOp = await activeAccount.createUnsignedUserOp({
+          target: recipientAddress,
+          value: ethers.utils.parseEther(amount),
+          data: '0x',
+        });
+        bundler.estimateUserOpGas(unsignedUserOp).then((gas) => {
+          console.log('gas', gas);
+          setFeeEstimate(`${ethers.utils.formatUnits(gas)} ETH`);
+        });
+      }
+    }, 1000);
+
+    return () => clearTimeout(_getGasEst);
+  }, [provider, bundler, activeAccount, amount, recipientAddress]);
 
   return (
     <Flex
@@ -180,7 +217,7 @@ const Send = () => {
             color="blackAlpha.600"
             fontSize="sm"
             fontWeight="600">
-            Fees $0.10
+            Fees {feeEstimate}
           </Text>
         </Flex>
         <Flex

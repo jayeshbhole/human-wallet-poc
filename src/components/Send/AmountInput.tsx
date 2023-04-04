@@ -1,4 +1,5 @@
 import { Button, Flex, Input, Text } from '@chakra-ui/react';
+import { BigNumberish } from 'ethers';
 
 const AmountInput = ({
   amount,
@@ -9,7 +10,7 @@ const AmountInput = ({
   amount: string;
   handleAmountChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   token: string;
-  balance: string;
+  balance: BigNumberish;
 }) => {
   return (
     <Flex
@@ -65,9 +66,10 @@ const AmountInput = ({
         as="span"
         color="blackAlpha.600"
         fontSize="sm"
+        fontWeight="600"
         ml="3"
         mt="2">
-        Balance: {balance} {token}
+        Balance: {balance.toString()} {token}
       </Text>
     </Flex>
   );

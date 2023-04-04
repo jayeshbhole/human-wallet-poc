@@ -1,19 +1,18 @@
-import { PaymasterAPI } from '@humanwallet/sdk';
+import { HttpRpcClient, PaymasterAPI } from '@humanwallet/sdk';
 import * as encryptor from '@metamask/browser-passworder';
 import { ethers, Wallet } from 'ethers';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { DeserializeState, HumanAccountData, KeyringSerialisedState } from '../types/account';
+import { DeserializeState, KeyringSerialisedState } from '../types/account';
 import HumanAccountClientAPI from '../utils/account-api';
 import { BUNDLER_URL, ENTRYPOINT_ADDRESS, RPC_URL } from '../utils/constants';
-import { getGasFee } from '../utils/getGasFee';
 import { getHttpRpcClient } from '../utils/getHttpRpcClient';
 import { getHumanAccount } from '../utils/getHumanAccount';
-import { getVerifyingPaymaster, paymasterAPI } from '../utils/getPaymaster';
-import { printOp } from '../utils/opUtils';
+import { paymasterAPI } from '../utils/getPaymaster';
 import registerDeviceKey from '../utils/registerDeviceKey';
 
 interface KeyringContext {
   provider: ethers.providers.JsonRpcProvider;
+  bundler: HttpRpcClient;
   vault: string;
   keyrings: { [address: string]: HumanAccountClientAPI };
 
@@ -39,8 +38,11 @@ interface KeyringContext {
 }
 
 const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+const bundler = await getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS);
+
 export const KeyringContext = createContext<KeyringContext>({
   provider: provider,
+  bundler: bundler,
   vault: '',
   keyrings: {},
   error: undefined,
@@ -53,8 +55,6 @@ export const KeyringContext = createContext<KeyringContext>({
   unlockVault: () => Promise.resolve(false),
   initDeviceWithPin: () => Promise.resolve(false),
 });
-
-const bundler = await getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS);
 
 type Keyrings = { [address: string]: HumanAccountClientAPI };
 
@@ -273,6 +273,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     <KeyringContext.Provider
       value={{
         provider,
+        bundler,
         vault,
         keyrings: appKeyrings,
         status,
