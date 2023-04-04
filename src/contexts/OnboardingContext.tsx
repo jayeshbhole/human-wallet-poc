@@ -5,7 +5,7 @@ import { ethers, Signer, Wallet } from 'ethers';
 import { ConfirmationResult, RecaptchaVerifier, User, signInWithPhoneNumber } from 'firebase/auth';
 import { createContext, memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { web3AuthClientId, chainConfig } from '../utils/constants';
+import { web3AuthClientId, chainConfig, SUBGRAPH_URL } from '../utils/constants';
 import { auth } from '../utils/firebase';
 import { useKeyringContext } from './KeyringContext';
 
@@ -292,7 +292,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
       body: graphql,
     };
 
-    const res = await fetch('https://api.thegraph.com/subgraphs/name/jayeshbhole/humanaccounts', requestOptions)
+    const res = await fetch(SUBGRAPH_URL, requestOptions)
       .then((response) => response.json())
       .catch((error) => console.log('error', error));
 

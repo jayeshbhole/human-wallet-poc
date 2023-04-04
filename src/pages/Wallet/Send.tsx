@@ -1,44 +1,109 @@
-import { Box, Button, Flex, Grid, Heading, Icon, Input, Spacer, Text } from '@chakra-ui/react';
-import { BriefcaseIcon, ClipboardIcon, NewspaperIcon } from '@heroicons/react/24/outline';
-import { useState } from 'react';
-import { ScanQR } from '../../assets/Icon/ScanQR';
+import { Button, Flex, Grid, Heading, Icon, Spacer, Text } from '@chakra-ui/react';
+import { BriefcaseIcon } from '@heroicons/react/24/outline';
+import { isAddress } from 'ethers/lib/utils';
+import { useEffect, useState } from 'react';
 import BackButton from '../../components/BackButton';
+import AmountInput from '../../components/Send/AmountInput';
+import RecipientInput from '../../components/Send/RecipientInput';
 import { useKeyringContext } from '../../contexts/KeyringContext';
+import { SUBGRAPH_URL } from '../../utils/constants';
+
+const HUMANACCOUNT_QUERY = `
+query HumanAccounts($where: HumanAccount_filter) {
+  humanAccounts(where: $where) {
+    address
+    username
+  }
+}`;
 
 const Send = () => {
-  const [currency, setCurrency] = useState('USD');
+  const [recipient, setRecipient] = useState('');
+  const [recipientSuggestions, setRecipientSuggestions] = useState<any>(null);
+  const [recipientError, setRecipientError] = useState('');
+
   const [token, setToken] = useState('ETH');
   const [balance, setBalance] = useState('0.00');
-  const [inputMode, setInputMode] = useState<'amount' | 'value'>('value');
+
   // amount of currency to send
   const [amount, setAmount] = useState('');
-  // currency value in USD
-  const [value, setValue] = useState('');
 
-  const { activeAccount } = useKeyringContext();
+  const { activeAccount, provider } = useKeyringContext();
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // amount should always have the token suffix
     const { value } = e.target;
-    if (!Number.isNaN(Number(value))) {
-      setAmount(Number(value).toString());
-    }
+    setAmount(value);
   };
-  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // value should always have a $ prefix
+
+  // use debouncing to get recipient related data
+  const handleRecipientChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    if (value.startsWith('$ ')) {
-      if (!Number.isNaN(Number(value.slice(2)))) {
-        setValue(value);
-      }
-    } else {
-      if (!Number.isNaN(Number(value))) {
-        setValue('$ ' + value);
-      } else {
-        setValue('');
-      }
-    }
+    setRecipient(value);
   };
+
+  useEffect(() => {
+    // get recipient data
+    setRecipientError('');
+    const getData = setTimeout(async () => {
+      if (recipient.endsWith('@uno')) {
+        const graphql = JSON.stringify({
+          query: HUMANACCOUNT_QUERY,
+          variables: { where: { username: recipient.split('@')[0] } },
+        });
+        const requestOptions = {
+          method: 'POST',
+          body: graphql,
+        };
+        const res = await fetch(SUBGRAPH_URL, requestOptions)
+          .then((response) => response.json())
+          .catch((error) => console.log('error', error));
+
+        if (res?.data?.humanAccounts?.length) {
+          setRecipientSuggestions(res.data.humanAccounts);
+        }
+      } else {
+        const ensAddress = await provider.resolveName(recipient);
+        if (ensAddress) {
+          // if recipient is ENS
+          setRecipientSuggestions([
+            {
+              address: ensAddress,
+              username: '',
+            },
+          ]);
+        } else if (isAddress(recipient)) {
+          // if recipient is address
+          setRecipientSuggestions([
+            {
+              address: recipient,
+              username: '',
+            },
+          ]);
+        } else {
+          const graphql = JSON.stringify({
+            query: HUMANACCOUNT_QUERY,
+            variables: { where: { username: recipient } },
+          });
+          const requestOptions = {
+            method: 'POST',
+            body: graphql,
+          };
+          const res = await fetch(SUBGRAPH_URL, requestOptions)
+            .then((response) => response.json())
+            .catch((error) => console.log('error', error));
+
+          if (res?.data?.humanAccounts?.length) {
+            setRecipientSuggestions(res.data.humanAccounts);
+          } else {
+            setRecipientSuggestions(null);
+            setRecipientError('Invalid input');
+          }
+        }
+      }
+    }, 1000);
+
+    return () => clearTimeout(getData);
+  }, [recipient]);
 
   return (
     <Flex
@@ -68,118 +133,24 @@ const Send = () => {
           </Heading>
         </Grid>
 
-        <Flex
-          direction="column"
-          gap="4">
-          {/* recipient quick actions */}
-          <Flex
-            direction="row"
-            justify="space-between"
-            align="center"
-            w="full">
-            <RecipientQuickButton
-              label="Scan QR"
-              icon={ScanQR}
-              onClick={() => {}}
-              isDisabled
-            />
-            <RecipientQuickButton
-              label="Contacts"
-              icon={NewspaperIcon}
-              onClick={() => {}}
-              isDisabled
-            />
-            <RecipientQuickButton
-              label="Paste"
-              icon={ClipboardIcon}
-              onClick={() => {}}
-            />
-          </Flex>
-
-          {/* recipient */}
-          <Flex
-            bg="gray.50"
-            direction="column"
-            rounded="2xl"
-            gap="1"
-            border="1px solid"
-            borderColor="blackAlpha.200"
-            p="4"
-            transition="all 0.2s ease"
-            _focusWithin={{
-              border: '1px solid',
-              borderColor: 'blackAlpha.400',
-            }}>
-            <Text
-              as="span"
-              color="blackAlpha.600"
-              fontSize="sm"
-              fontWeight="600">
-              Send To
-            </Text>
-
-            <Input
-              variant="unstyled"
-              fontSize="lg"
-              fontWeight="600"
-              color="blackAlpha.700"
-              _placeholder={{ color: 'blackAlpha.500' }}
-              placeholder="Address / Username / ENS"
-              rounded="none"
-            />
-          </Flex>
-        </Flex>
+        {/* Recipient Input */}
+        <RecipientInput
+          recipient={recipient}
+          recipientSuggestions={recipientSuggestions}
+          handleRecipientChange={handleRecipientChange}
+          recipientError={recipientError}
+        />
 
         {/* Amount Input */}
-        <Flex
-          bg="gray.50"
-          direction="column"
-          rounded="2xl"
-          gap="1"
-          border="1px solid"
-          borderColor="blackAlpha.200"
-          p="4"
-          transition="all 0.2s ease"
-          _focusWithin={{
-            border: '1px solid',
-            borderColor: 'blackAlpha.400',
-          }}>
-          <Text
-            as="span"
-            color="blackAlpha.600"
-            fontSize="sm"
-            fontWeight="600">
-            Amount
-          </Text>
-
-          <Flex
-            direction="row"
-            align="center"
-            justify="space-between">
-            <Input
-              type="text"
-              onClick={handleAmountChange}
-              variant="unstyled"
-              fontSize="lg"
-              fontWeight="600"
-              color="blackAlpha.700"
-              _placeholder={{ color: 'blackAlpha.500' }}
-              placeholder="0.00"
-              rounded="none"
-            />
-
-            <Button
-              h="8"
-              minH="8">
-              {token}
-            </Button>
-          </Flex>
-        </Flex>
+        <AmountInput
+          token={token}
+          amount={amount}
+          handleAmountChange={handleAmountChange}
+          balance={balance}
+        />
       </Flex>
 
       <Spacer />
-      {/* Divider */}
-      {/* <Box border="1px solid #04100F16" /> */}
 
       <Flex
         direction="column"
@@ -257,42 +228,6 @@ const Send = () => {
         </Button>
       </Flex>
     </Flex>
-  );
-};
-
-const RecipientQuickButton = ({
-  onClick,
-  label,
-  icon,
-  isDisabled,
-}: {
-  onClick: () => void;
-  label: string;
-  icon: any;
-  isDisabled?: boolean;
-}) => {
-  return (
-    <Button
-      variant="ghost"
-      px="2"
-      py="2"
-      backgroundColor="gray.100"
-      color="blackAlpha.700"
-      fontWeight="700"
-      fontSize="sm"
-      rounded="xl"
-      _hover={{ bg: 'gray.200' }}
-      isDisabled={isDisabled}
-      onClick={onClick}>
-      <Icon
-        color="blackAlpha.700"
-        as={icon}
-        w="1.5rem"
-        h="1.5rem"
-        mr="2"
-      />
-      {label}
-    </Button>
   );
 };
 

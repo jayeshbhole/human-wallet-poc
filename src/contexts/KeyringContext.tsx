@@ -13,6 +13,7 @@ import { printOp } from '../utils/opUtils';
 import registerDeviceKey from '../utils/registerDeviceKey';
 
 interface KeyringContext {
+  provider: ethers.providers.JsonRpcProvider;
   vault: string;
   keyrings: { [address: string]: HumanAccountClientAPI };
 
@@ -37,7 +38,9 @@ interface KeyringContext {
   }) => Promise<boolean>;
 }
 
+const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
 export const KeyringContext = createContext<KeyringContext>({
+  provider: provider,
   vault: '',
   keyrings: {},
   error: undefined,
@@ -51,7 +54,6 @@ export const KeyringContext = createContext<KeyringContext>({
   initDeviceWithPin: () => Promise.resolve(false),
 });
 
-const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
 const bundler = await getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS);
 
 type Keyrings = { [address: string]: HumanAccountClientAPI };
@@ -270,6 +272,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   return (
     <KeyringContext.Provider
       value={{
+        provider,
         vault,
         keyrings: appKeyrings,
         status,
