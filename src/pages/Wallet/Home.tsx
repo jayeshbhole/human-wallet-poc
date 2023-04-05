@@ -13,8 +13,6 @@ const Home = () => {
     return jsNumberForAddress(activeAccount?.accountAddress || '0x');
   }, [activeAccount]);
 
-  // get balances from debank
-
   return (
     <Flex
       height="100%"

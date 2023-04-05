@@ -1,10 +1,7 @@
 import { Box, Flex, Icon, Input } from '@chakra-ui/react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { Dispatch, SetStateAction, useContext, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import Keypad from '../components/Keypad';
-import { OnboardingActionButton } from '../components/Onboarding';
-import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../components/Onboarding/headings';
-import { OnboardingContext } from '../contexts/OnboardingContext';
 import useDigitInputs from '../hooks/useDigitInputs';
 
 export const PinInput = ({
