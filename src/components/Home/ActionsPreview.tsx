@@ -1,35 +1,7 @@
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
-import { formatEther } from 'ethers/lib/utils';
-import { useEffect, useState } from 'react';
-import { useKeyringContext } from '../../contexts/KeyringContext';
+import { Box, Flex, Text } from '@chakra-ui/react';
+import { Actions } from './Main';
 
-interface Action {
-  title: string;
-  description: string;
-}
-
-interface Actions {
-  [key: string]: Action;
-}
-
-const ActionsPreview = () => {
-  const [actions, setActions] = useState<Actions>({});
-  const [goerliBalance, setGBalance] = useState<string>('0.00');
-  const { activeAccount, provider } = useKeyringContext();
-
-  useEffect(() => {
-    // get balance of account
-    if (activeAccount?.accountAddress) {
-      provider.getBalance(activeAccount.accountAddress).then((balance) => {
-        if (balance.isZero())
-          setActions((a: Actions) => ({
-            ...a,
-            add_funds: { title: 'Add Funds', description: 'Add funds to your wallet' },
-          }));
-      });
-    }
-  }, [activeAccount, provider]);
-
+const ActionsPreview = ({ actions, number }: { actions: Actions; number?: number }) => {
   return (
     <Box>
       <Flex>
@@ -37,10 +9,10 @@ const ActionsPreview = () => {
           as="span"
           color="blackAlpha.700"
           fontWeight="600">
-          Take Actions {actions.length ? `(${actions.length})` : ''}
+          Take Actions {number ? `(${number})` : ''}
         </Text>
 
-        {/* {actions.length > 2 && (
+        {/* {number > 2 && (
           <Button
             variant="link"
             ml="auto"

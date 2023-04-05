@@ -15,7 +15,7 @@ const colors = {
   },
 };
 
-export const styles = {
+const styles = {
   global: (props: StyleFunctionProps) => ({
     body: {
       background: '#424242',

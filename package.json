@@ -11,6 +11,7 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.0.18",
     "@chakra-ui/react": "^2.5.2",
+    "@chakra-ui/system": "^2.5.5",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@humanwallet/contracts": "^0.5.1",
@@ -27,6 +28,7 @@
     "firebase": "^9.17.2",
     "framer-motion": "^10.6.0",
     "libphonenumber-js": "^1.10.21",
+    "postcss": "^8.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-jazzicon": "^1.0.4",
