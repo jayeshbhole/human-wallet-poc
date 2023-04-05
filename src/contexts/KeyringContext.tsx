@@ -24,6 +24,7 @@ interface KeyringContext {
   // accounts: HumanAccountData[];
   activeAccount?: HumanAccountClientAPI | undefined;
 
+  checkPIN: (password: string) => Promise<boolean>;
   unlockVault(password?: string): Promise<boolean>;
 
   initDeviceWithPin: ({
@@ -52,6 +53,7 @@ export const KeyringContext = createContext<KeyringContext>({
 
   // accounts: [],
   activeAccount: undefined,
+  checkPIN: () => Promise.resolve(false),
   unlockVault: () => Promise.resolve(false),
   initDeviceWithPin: () => Promise.resolve(false),
 });
@@ -88,6 +90,21 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
       setActiveAccUsername(appKeyrings[Object.keys(appKeyrings)[0]].username);
     }
   }, [appKeyrings, activeAccountUsername]);
+
+  const checkPIN = async (password: string) => {
+    if (!vault) {
+      throw new Error('Vault is not initialized');
+    }
+
+    try {
+      const result = await encryptor.decryptWithDetail(password, vault);
+
+      const _vault: any = result.vault;
+      return true;
+    } catch (error) {
+      throw new Error('Invalid PIN');
+    }
+  };
 
   const unlockVault = async (password?: string) => {
     if (!vault) {
@@ -185,7 +202,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
       accountUsername,
       ownerAddress: await ownerSigner.getAddress(),
       entryPointAddress: ENTRYPOINT_ADDRESS,
-      paymasterAPI: paymasterAPI,
+      // paymasterAPI: paymasterAPI,
     });
     const deviceAddress = deviceAcount.getSignerAddress();
     const deviceWallet = deviceAcount.signerWallet;
@@ -262,7 +279,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
       accountUsername: username,
       ownerAddress: ownerAddress,
       entryPointAddress: ENTRYPOINT_ADDRESS,
-      paymasterAPI: paymasterAPI,
+      // paymasterAPI: paymasterAPI,
       deserializeState: { data },
     });
 
@@ -281,6 +298,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
         paymasterAPI,
         // accounts,
         activeAccount: activeAccount,
+        checkPIN,
         unlockVault,
         initDeviceWithPin,
       }}>
