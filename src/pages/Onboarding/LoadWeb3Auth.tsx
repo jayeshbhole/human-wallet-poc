@@ -9,8 +9,9 @@ const LoadWeb3Auth = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let timeout: NodeJS.Timeout;
     if (web3Auth) {
-      setTimeout(() => {
+      timeout = setTimeout(() => {
         if (!firebaseUser) {
           navigate('/onboarding', {
             replace: true,
@@ -23,9 +24,13 @@ const LoadWeb3Auth = () => {
             replace: true,
           });
         }
-      }, 1000);
+      }, 2000);
     }
-  }, [getOwnerKeysAndNavigate, web3Auth, navigate]);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [web3Auth, firebaseUser, ownerPubKey]);
 
   return (
     <>

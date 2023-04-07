@@ -11,7 +11,9 @@ const CurrencyBalances = () => {
   useEffect(() => {
     // get balance of account
     if (activeAccount?.accountAddress) {
-      provider.getBalance(activeAccount.accountAddress).then((balance) => setGBalance(formatEther(balance)));
+      provider
+        .getBalance(activeAccount.accountAddress)
+        .then((balance) => setGBalance(Number(formatEther(balance)).toPrecision(6)));
     }
   }, [activeAccount, provider]);
 
@@ -69,7 +71,7 @@ const CurrencyRow = ({
       bg="gray.50"
       rounded="2xl"
       w="100%"
-      templateColumns="3rem 2fr 1fr"
+      templateColumns="3rem 1fr 1fr"
       alignItems="flex-end"
       gap="3"
       rowGap="1">

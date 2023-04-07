@@ -39,6 +39,7 @@ export async function getHumanAccount({
       _signerWallet = deserializeState?.data.signerKey
         ? new ethers.Wallet(deserializeState?.data.signerKey)
         : new ethers.Wallet(import.meta.env.VITE_SIGNER_PRIVATE_KEY ?? '');
+      // ethers.Wallet.createRandom();
     }
   }
 

@@ -12,6 +12,7 @@ const SelectDevicePin = () => {
   const [pinValue, setPinValue] = useState('');
   const [confirmPinValue, setConfirmPinValue] = useState('');
   const [confirmPin, setConfirmPin] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { handlePinSubmit } = useContext(OnboardingContext);
 
@@ -28,10 +29,11 @@ const SelectDevicePin = () => {
     return '';
   }, [pinValue, confirmPinValue, confirmPin]);
 
-  const handleAction = () => {
+  const handleAction = async () => {
     if (confirmPin) {
       if (pinValue === confirmPinValue) {
-        handlePinSubmit(pinValue);
+        setLoading(true);
+        await handlePinSubmit(pinValue);
       }
     } else {
       if (pinValue.length === 6) {
@@ -71,7 +73,11 @@ const SelectDevicePin = () => {
       />
 
       {/* Action Button */}
-      <OnboardingActionButton onClick={handleAction}>{confirmPin ? 'Confirm' : 'Continue'}</OnboardingActionButton>
+      <OnboardingActionButton
+        isLoading={loading}
+        onClick={handleAction}>
+        {loading ? 'Registering Device' : confirmPin ? 'Confirm' : 'Continue'}
+      </OnboardingActionButton>
     </>
   );
 };

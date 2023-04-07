@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { OnboardingActionButton } from '../../../components/Onboarding';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../../components/Onboarding/headings';
 import OTPInput from '../../../components/OTPInput';
@@ -6,7 +7,7 @@ import { OnboardingContext } from '../../../contexts/OnboardingContext';
 
 const PhoneLoginVerify = () => {
   const { handleVerifyOTP, firebaseUser } = useContext(OnboardingContext);
-
+  const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState(firebaseUser?.phoneNumber || '');
   const [otp, setOTP] = useState('');
 
@@ -16,8 +17,14 @@ const PhoneLoginVerify = () => {
     }
   }, [firebaseUser]);
 
-  const handleAction = () => {
-    handleVerifyOTP(otp);
+  const handleAction = async () => {
+    const res = await handleVerifyOTP(otp);
+
+    if (res) {
+      navigate('/onboarding/web3Auth', {
+        replace: true,
+      });
+    }
   };
 
   return (
@@ -35,7 +42,12 @@ const PhoneLoginVerify = () => {
         setOTP={setOTP}
       />
       {/* Action Button */}
-      <OnboardingActionButton onClick={handleAction}>Continue</OnboardingActionButton>
+      <OnboardingActionButton
+        isLoading={false}
+        disabled={otp.length < 6}
+        onClick={handleAction}>
+        Continue
+      </OnboardingActionButton>
     </>
   );
 };

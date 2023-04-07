@@ -13,8 +13,8 @@ const FinishOnboarding = () => {
       <HeadingBox>
         <StepTitle>
           <>
-            Congratulations!
-            <br /> You've <HeadingEmphasis>created a new account</HeadingEmphasis>
+            Congratulations! You've <br />
+            <HeadingEmphasis>logged into you account</HeadingEmphasis>
           </>
         </StepTitle>
         <StepDescription>Share your account address and username to start receiving payments!</StepDescription>
@@ -57,13 +57,14 @@ const FinishOnboarding = () => {
         </Box>
         <Box
           zIndex="1"
-          fontSize="sm"
+          fontSize="xs"
           fontWeight="500"
           color="gray.400"
-          w="15ch"
-          whiteSpace="nowrap"
-          overflow="hidden"
-          textOverflow="ellipsis">
+          // w="15ch"
+          // whiteSpace="nowrap"
+          // overflow="hidden"
+          // textOverflow="ellipsis">
+        >
           {activeAccount?.accountAddress}
         </Box>
       </Box>

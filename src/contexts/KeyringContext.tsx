@@ -195,8 +195,8 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
       ownerWallet: ownerSigner,
       signerWallet: ownerSigner,
       entryPointAddress: ENTRYPOINT_ADDRESS,
-      paymasterAPI: paymasterAPI,
     });
+
     const deviceAcount = await getHumanAccount({
       provider: provider,
       accountUsername,
@@ -214,7 +214,11 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     const isDeviceRegistered = isAccountDeployed && (await accountContract.deviceKeys(deviceAddress));
 
     if (!isAccountDeployed || !isDeviceRegistered) {
-      const res = registerDeviceKey({
+      // ownerSignerAcc.paymasterAPI = paymasterAPI;
+      // if (!isAccountDeployed) {
+      //   ownerSignerAcc.paymasterAPI = paymasterAPI;
+      // }
+      const res = await registerDeviceKey({
         provider,
         accountUsername,
         accountContract,
@@ -228,6 +232,8 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
 
       console.log('KEYRING: Device registered');
     } else {
+      // add delay of 5 seconds
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       console.log('KEYRING: Device already registered');
     }
 

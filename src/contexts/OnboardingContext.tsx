@@ -1,11 +1,10 @@
 // import { CHAIN_NAMESPACES, SafeEventEmitterProvider } from '@web3auth/base';
-import { CHAIN_NAMESPACES, SafeEventEmitterProvider } from '@web3auth/base';
 import { Web3Auth } from '@web3auth/single-factor-auth';
-import { ethers, Signer, Wallet } from 'ethers';
-import { ConfirmationResult, RecaptchaVerifier, User, signInWithPhoneNumber } from 'firebase/auth';
-import { createContext, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { ethers, Wallet } from 'ethers';
+import { ConfirmationResult, RecaptchaVerifier, signInWithPhoneNumber, User } from 'firebase/auth';
+import { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { web3AuthClientId, chainConfig, SUBGRAPH_URL } from '../utils/constants';
+import { chainConfig, SUBGRAPH_URL, web3AuthClientId } from '../utils/constants';
 import { auth } from '../utils/firebase';
 import { useKeyringContext } from './KeyringContext';
 
@@ -61,7 +60,7 @@ interface OnboardingContext {
   setMode: (mode: OnboardingStep) => void;
   handlePhoneSubmit: (phoneNumber: string) => Promise<boolean>;
   handleResendOTP: () => Promise<void>;
-  handleVerifyOTP: (otp: string) => void;
+  handleVerifyOTP: (otp: string) => Promise<boolean>;
   getOwnerKeysAndNavigate: (web3Auth?: Web3Auth) => Promise<void>;
   selectUsername: (username: string) => Promise<void>;
   handlePinSubmit: (pin: string) => Promise<void>;
@@ -83,7 +82,7 @@ export const OnboardingContext = createContext<OnboardingContext>({
 
   handlePhoneSubmit: (phoneNumber: string) => Promise.resolve(false),
   handleResendOTP: () => Promise.resolve(),
-  handleVerifyOTP: (otp: string) => {},
+  handleVerifyOTP: (otp: string) => Promise.resolve(false),
   getOwnerKeysAndNavigate: (web3Auth?: Web3Auth) => Promise.resolve(),
   selectUsername: (username: string) => Promise.resolve(),
   handlePinSubmit: (pin: string) => Promise.resolve(),
@@ -201,23 +200,22 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
     [_requestOTP, navigate]
   );
 
-  // handleVerifyOTP
   const handleVerifyOTP = useCallback(
     async (verificationCode: string) => {
       if (!confirmationResult || !verificationCode) {
         console.log('confirmationResult not initialized yet or verification code not entered');
-        return;
+        return false;
       }
       try {
         const loginRes = await confirmationResult.confirm(verificationCode);
         setFirebaseUser(loginRes.user);
 
-        navigate('/onboarding/web3Auth', {
-          replace: true,
-        });
+        return true;
       } catch (err) {
         console.debug(err);
       }
+
+      return false;
     },
     [confirmationResult]
   );

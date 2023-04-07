@@ -82,33 +82,53 @@ const Send = () => {
     }
   };
 
-  const handleConfirm = async () => {
-    // send op
-    if (op) {
-      const tx = bundler
-        .sendUserOpToBundler(op)
-        .then((tx: any) => {
-          setTxHash(tx.hash);
-          setOpStatus('completed');
-        })
-        .catch((err: any) => {
-          setOpStatus('error');
-          console.log(err);
-        });
-      console.log(tx);
+  const getBalance = async () => {
+    if (activeAccount?.accountAddress) {
+      provider
+        .getBalance(activeAccount.accountAddress)
+        .then((balance) => setBalance(Number(ethers.utils.formatEther(balance)).toPrecision(5)));
     }
+  };
 
+  const handleConfirm = async () => {
     // set op status to pending
     setOpStatus('pending');
+
+    // send op
+    if (op && activeAccount) {
+      const uoHash = await bundler.sendUserOpToBundler(op).catch((err: any) => {
+        setOpStatus('error');
+        console.log(err);
+      });
+
+      if (!uoHash) {
+        setOpStatus('error');
+        return;
+      }
+      const txHash = await activeAccount.getUserOpReceipt(uoHash);
+      if (!txHash) {
+        console.error('Tx error!!!');
+        setOpStatus('error');
+        return;
+      }
+
+      await provider.waitForTransaction(txHash);
+
+      console.log('Transaction mined!');
+      setTxHash(txHash);
+      setOpStatus('completed');
+    }
+  };
+
+  const handleModalClose = () => {
+    closeConfirmationModal();
+    setOpStatus('unconfirmed');
+    setTxHash('');
   };
 
   useEffect(() => {
     // get balance of account
-    if (activeAccount?.accountAddress) {
-      provider
-        .getBalance(activeAccount.accountAddress)
-        .then((balance) => setBalance(ethers.utils.formatEther(balance)));
-    }
+    getBalance();
   }, [activeAccount, provider]);
 
   useEffect(() => {
@@ -186,7 +206,7 @@ const Send = () => {
     <>
       <ConfirmationModal
         isOpen={isConfirmationModalOpen}
-        onClose={closeConfirmationModal}
+        onClose={handleModalClose}
         onConfirm={handleConfirm}
         amount={amount}
         feeEstimate={feeEstimate}

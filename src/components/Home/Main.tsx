@@ -11,6 +11,7 @@ import QuickActionButton from './QuickActionButton';
 import { formatEther } from 'ethers/lib/utils';
 import { useEffect, useState } from 'react';
 import { useKeyringContext } from '../../contexts/KeyringContext';
+import { LockClosedIcon } from '@heroicons/react/24/outline';
 interface Action {
   title: string;
   description: string;
@@ -122,6 +123,16 @@ const QuickActionButtons = () => {
           />
         }
         label="Receive"
+      />
+      <QuickActionButton
+        icon={
+          <Icon
+            w="7"
+            h="7"
+            as={LockClosedIcon}
+          />
+        }
+        label="Lock"
       />
       <QuickActionButton
         icon={

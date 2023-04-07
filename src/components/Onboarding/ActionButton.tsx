@@ -5,10 +5,12 @@ export const OnboardingActionButton = ({
   children,
   onClick,
   disabled,
+  isLoading,
   ...props
 }: {
   children: ReactNode;
   onClick: () => void;
+  isLoading?: boolean;
   disabled?: boolean;
 }) => {
   return (
@@ -28,6 +30,7 @@ export const OnboardingActionButton = ({
       _disabled={{ opacity: 0.75, cursor: 'not-allowed' }}
       onClick={onClick}
       isDisabled={disabled}
+      isLoading={isLoading}
       {...props}>
       {children}
     </Button>

@@ -91,28 +91,13 @@ const ConfirmationModal = ({
             <Text
               textAlign="right"
               as="span"
+              textOverflow="ellipsis"
+              whiteSpace="nowrap"
+              overflow="hidden"
               w="15ch"
               color="blackAlpha.700"
               fontWeight="600">
               {to.username || 'username'}
-              {/* <Text
-                as="span"
-                textColor="gray.400">
-                @one
-              </Text> */}
-            </Text>
-
-            <Text
-              textAlign="right"
-              ml="auto"
-              as="span"
-              color="blackAlpha.700"
-              fontWeight="600"
-              w="15ch"
-              textOverflow="ellipsis"
-              whiteSpace="nowrap"
-              overflow="hidden">
-              {to.address || '0x'}
             </Text>
           </Flex>
 
