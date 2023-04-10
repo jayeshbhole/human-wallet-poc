@@ -9,7 +9,7 @@ import ActionsPreview from './ActionsPreview';
 import CurrencyBalances from './CurrencyBalances';
 import QuickActionButton from './QuickActionButton';
 import { formatEther } from 'ethers/lib/utils';
-import { useEffect, useState } from 'react';
+import { FC, HTMLAttributes, useEffect, useState } from 'react';
 import { useKeyringContext } from '../../contexts/KeyringContext';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 interface Action {
@@ -80,7 +80,7 @@ const MainSection = () => {
   );
 };
 
-const Section: ChakraComponent<'section', {}> = ({ children, ...props }) => {
+const Section: FC<HTMLAttributes<{}>> = ({ children, ...props }) => {
   return (
     <Flex
       as="section"
