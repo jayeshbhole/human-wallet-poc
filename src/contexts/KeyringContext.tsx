@@ -12,7 +12,7 @@ import registerDeviceKey from '../utils/registerDeviceKey';
 
 interface KeyringContext {
   provider: ethers.providers.JsonRpcProvider;
-  bundler: HttpRpcClient;
+  bundler: HttpRpcClient | undefined;
   vault: string;
   keyrings: { [address: string]: HumanAccountClientAPI };
 
@@ -39,11 +39,10 @@ interface KeyringContext {
 }
 
 const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-const bundler = await getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS);
 
 export const KeyringContext = createContext<KeyringContext>({
   provider: provider,
-  bundler: bundler,
+  bundler: undefined,
   vault: '',
   keyrings: {},
   error: undefined,
@@ -66,6 +65,8 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   const [status, setStatus] = useState<'locked' | 'unlocked' | 'uninitialized'>('uninitialized');
   const [error, setError] = useState<string | undefined>(undefined);
 
+  const [bundler, setBundler] = useState<HttpRpcClient | undefined>(undefined);
+
   // const [accounts, setAccounts] = useState<HumanAccountData[]>([]);
 
   const [activeAccountUsername, setActiveAccUsername] = useState<string>(
@@ -73,6 +74,13 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
   );
   const [activeAccount, setActiveAccount] = useState<HumanAccountClientAPI>();
   const [deviceWallet, setDeviceWallet] = useState<ethers.Wallet>();
+
+  useEffect(() => {
+    (async () => {
+      const bundler = await getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS);
+      setBundler(bundler);
+    })();
+  }, []);
 
   useEffect(() => {
     if (status === 'uninitialized') {
@@ -187,6 +195,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     if (!ownerSigner) throw new Error('Cannot initialise device without owner signer');
     if (!pin) throw new Error('Cannot initialise device without pin');
     if (!/^\d{6}$/.test(pin)) throw new Error('Invalid pin');
+    if (!bundler) throw new Error('Bundler is not initialized');
 
     const ownerSignerAcc = await getHumanAccount({
       provider: provider,

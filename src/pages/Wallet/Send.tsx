@@ -57,6 +57,7 @@ const Send = () => {
   };
 
   const handleSend = async () => {
+    if (!bundler) throw new Error('Bundler is not initialized');
     // create op
     if (activeAccount && amount && isAddress(recipientAddress)) {
       const signedUserOp = await activeAccount.createSignedUserOp({
@@ -91,6 +92,7 @@ const Send = () => {
   };
 
   const handleConfirm = async () => {
+    if (!bundler) throw new Error('Bundler is not initialized');
     // set op status to pending
     setOpStatus('pending');
 
