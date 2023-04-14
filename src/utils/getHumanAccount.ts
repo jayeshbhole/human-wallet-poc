@@ -38,8 +38,8 @@ export async function getHumanAccount({
       // generate a new signer if deserialieState does not contain a key
       _signerWallet = deserializeState?.data.signerKey
         ? new ethers.Wallet(deserializeState?.data.signerKey)
-        : new ethers.Wallet(import.meta.env.VITE_SIGNER_PRIVATE_KEY ?? '');
-      // ethers.Wallet.createRandom();
+        : // : new ethers.Wallet(import.meta.env.VITE_SIGNER_PRIVATE_KEY ?? '');
+          ethers.Wallet.createRandom();
     }
   }
 

@@ -1,4 +1,3 @@
-// import { CHAIN_NAMESPACES, SafeEventEmitterProvider } from '@web3auth/base';
 import { Web3Auth } from '@web3auth/single-factor-auth';
 import { ethers, Wallet } from 'ethers';
 import { ConfirmationResult, RecaptchaVerifier, signInWithPhoneNumber, User } from 'firebase/auth';
