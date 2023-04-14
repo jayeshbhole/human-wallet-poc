@@ -230,7 +230,12 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
   const getOwnerKeys = useCallback(async () => {
     if (!web3Auth) {
       console.error('WEB3AUTH: web3auth not initialized yet');
-      return;
+      throw new Error('WEB3AUTH: web3auth not initialized yet');
+    }
+
+    if (!firebaseUser) {
+      console.error('FIREBASE: firebase user not initialized yet');
+      throw new Error('FIREBASE: firebase user not initialized yet');
     }
 
     if (web3Auth.provider) {
@@ -247,7 +252,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
         .then(async (_provider) => {
           if (!_provider) {
             console.error('WEB3AUTH: Error getting owner key');
-            return;
+            throw new Error('WEB3AUTH: Error getting owner key');
           }
 
           const _privKey: string = (await _provider.request({ method: 'eth_private_key' })) ?? '';

@@ -30,7 +30,7 @@ const LoadWeb3Auth = () => {
     return () => {
       clearTimeout(timeout);
     };
-  }, [web3Auth, firebaseUser, ownerPubKey]);
+  }, [web3Auth, firebaseUser, ownerPubKey, getOwnerKeysAndNavigate, navigate]);
 
   return (
     <>
