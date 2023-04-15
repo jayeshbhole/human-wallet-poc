@@ -1,7 +1,7 @@
 import { Box, Flex, Icon, Input, Menu, MenuButton, MenuItem, MenuList, Spacer, Text } from '@chakra-ui/react';
 import Flags from 'country-flag-icons/react/3x2';
 import { CountryCode, getCountries, getCountryCallingCode, isPossiblePhoneNumber } from 'libphonenumber-js/min';
-import { Dispatch, memo, SetStateAction, useCallback, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useRef, useState } from 'react';
 import PhoneInput from 'react-phone-number-input/input';
 import formatAsYouType from '../utils/formatAsYouType';
 import Keypad from './Keypad';

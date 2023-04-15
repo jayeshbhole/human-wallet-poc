@@ -1,7 +1,7 @@
-import { Dispatch, SetStateAction, createRef, useContext, useMemo, useRef, useState } from 'react';
+import { Box, Button, Input } from '@chakra-ui/react';
+import { Dispatch, SetStateAction, createRef, useContext, useMemo } from 'react';
 import Keypad from './Keypad';
 import { OnboardingContext } from '../contexts/OnboardingContext';
-import { Box, Button, Input } from '@chakra-ui/react';
 
 const RE_DIGIT = new RegExp(/^\d+$/);
 

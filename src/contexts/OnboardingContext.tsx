@@ -46,7 +46,7 @@ export const flows = {
   [OnboardingMode.DEPLOY]: [OnboardingStep.USERNAME, OnboardingStep.PIN, OnboardingStep.CREATED],
 };
 
-interface OnboardingContext {
+interface OnboardingContextInterface {
   step: number;
   mode: OnboardingMode;
   canResendOTP: boolean;
@@ -66,7 +66,7 @@ interface OnboardingContext {
   findDeployedAccounts: () => Promise<DeployedAccount[]>;
 }
 
-export const OnboardingContext = createContext<OnboardingContext>({
+export const OnboardingContext = createContext<OnboardingContextInterface>({
   step: 0,
   mode: OnboardingMode.NONE,
   canResendOTP: false,
@@ -118,6 +118,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
       clientId: web3AuthClientId,
       chainConfig,
       web3AuthNetwork: 'testnet',
+      usePnPKey: false, // Setting this to true returns the same key as PnP Web SDK, By default, this SDK returns CoreKitKey.
     });
     _web3authSFAuth.init();
 
@@ -150,7 +151,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
         auth
       )
     );
-  }, [recaptchaContainer.current]);
+  }, []);
 
   const _requestOTP = useCallback(
     async (phoneNumber: string) => {
@@ -243,6 +244,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
     } else {
       const _idToken = await firebaseUser.getIdToken(true);
       console.debug('WEB3AUTH: provider not set yet. requesting id token');
+
       const _provider = await web3Auth
         .connect({
           verifier: 'wallet-firebase',
@@ -264,7 +266,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
           return _provider;
         })
         .catch((err) => {
-          console.error(err);
+          console.error('WEB3AUTH: Connection failed', err);
         });
 
       return _provider;
@@ -305,12 +307,15 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
     return accounts;
   }, [ownerPubKey]);
 
-  const selectUsername = useCallback(async (_username: string) => {
-    setAccountUsername(_username);
-    navigate('/onboarding/select-pin', {
-      replace: true,
-    });
-  }, []);
+  const selectUsername = useCallback(
+    async (_username: string) => {
+      setAccountUsername(_username);
+      navigate('/onboarding/select-pin', {
+        replace: true,
+      });
+    },
+    [navigate]
+  );
 
   const handlePinSubmit = useCallback(
     async (pin: string) => {
@@ -346,7 +351,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
         console.error(err);
       }
     },
-    [accountUsername, ownerWallet, firebaseUser, initDeviceWithPin]
+    [accountUsername, ownerWallet, firebaseUser, initDeviceWithPin, navigate]
   );
 
   // deployAccount

@@ -1,8 +1,8 @@
+import { Spinner } from '@chakra-ui/react';
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { OnboardingContext } from '../../contexts/OnboardingContext';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../components/Onboarding/headings';
-import { Spinner } from '@chakra-ui/react';
+import { OnboardingContext } from '../../contexts/OnboardingContext';
 
 const FetchAccounts = () => {
   const { ownerPubKey, findDeployedAccounts } = useContext(OnboardingContext);

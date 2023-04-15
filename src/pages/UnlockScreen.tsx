@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { OnboardingActionButton } from '../components/Onboarding';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../components/Onboarding/headings';
@@ -27,9 +27,8 @@ const UnlockScreen = () => {
   }, [status, navigate]);
 
   const handlePINSubmit = async (pin: string) => {
-    const from = location.state?.from?.pathname || '/';
     try {
-      const res = await unlockVault(pin);
+      await unlockVault(pin);
       // if (res) {
       //   navigate(from);
       //   console.debug('UNLOCKED: navigating to', from);

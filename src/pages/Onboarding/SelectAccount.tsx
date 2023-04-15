@@ -1,6 +1,5 @@
-import { Box, Input } from '@chakra-ui/react';
-import { useContext, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Box } from '@chakra-ui/react';
+import { useContext } from 'react';
 import { OnboardingActionButton } from '../../components/Onboarding';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../components/Onboarding/headings';
 import { OnboardingContext } from '../../contexts/OnboardingContext';

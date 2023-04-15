@@ -1,17 +1,15 @@
-import { Box, ChakraComponent, Flex, Icon, Text } from '@chakra-ui/react';
+import { Box, Flex, Icon, Text } from '@chakra-ui/react';
 // import { ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon } from '@heroicons/react/24/outline';
+import { FC, HTMLAttributes, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowDownTrayIcon } from '../../assets/Icon/ArrowDownTray';
-import { ShieldCheckIcon } from '../../assets/Icon/ShieldCheck';
 import { ArrowUpTrayIcon } from '../../assets/Icon/ArrowUpTray';
-import { CurrencyETH } from '../../assets/Icon/CurrencyETH';
+import { ShieldCheckIcon } from '../../assets/Icon/ShieldCheck';
+import { useKeyringContext } from '../../contexts/KeyringContext';
 import ActionsPreview from './ActionsPreview';
 import CurrencyBalances from './CurrencyBalances';
 import QuickActionButton from './QuickActionButton';
-import { formatEther } from 'ethers/lib/utils';
-import { FC, HTMLAttributes, useEffect, useState } from 'react';
-import { useKeyringContext } from '../../contexts/KeyringContext';
-import { LockClosedIcon } from '@heroicons/react/24/outline';
 interface Action {
   title: string;
   description: string;
@@ -22,7 +20,7 @@ export interface Actions {
 }
 const MainSection = () => {
   const [actions, setActions] = useState<Actions>({});
-  const [goerliBalance, setGBalance] = useState<string>('0.00');
+  // const [goerliBalance, setGBalance] = useState<string>('0.00');
   const { activeAccount, provider } = useKeyringContext();
 
   useEffect(() => {

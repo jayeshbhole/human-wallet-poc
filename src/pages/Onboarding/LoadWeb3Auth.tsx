@@ -1,4 +1,4 @@
-import { Box, Spinner } from '@chakra-ui/react';
+import { Spinner } from '@chakra-ui/react';
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../components/Onboarding/headings';

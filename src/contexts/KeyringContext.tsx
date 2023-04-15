@@ -10,7 +10,7 @@ import { getHumanAccount } from '../utils/getHumanAccount';
 import { paymasterAPI } from '../utils/getPaymaster';
 import registerDeviceKey from '../utils/registerDeviceKey';
 
-interface KeyringContext {
+interface KeyringContextInterface {
   provider: ethers.providers.JsonRpcProvider;
   bundler: HttpRpcClient | undefined;
   vault: string;
@@ -40,7 +40,7 @@ interface KeyringContext {
 
 const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
 
-export const KeyringContext = createContext<KeyringContext>({
+export const KeyringContext = createContext<KeyringContextInterface>({
   provider: provider,
   bundler: undefined,
   vault: '',
@@ -73,13 +73,12 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     localStorage.getItem('activeAccountUsername') ?? ''
   );
   const [activeAccount, setActiveAccount] = useState<HumanAccountClientAPI>();
-  const [deviceWallet, setDeviceWallet] = useState<ethers.Wallet>();
+  // const [_, setDeviceWallet] = useState<ethers.Wallet>();
 
   useEffect(() => {
-    (async () => {
-      const bundler = await getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS);
+    getHttpRpcClient(provider, BUNDLER_URL, ENTRYPOINT_ADDRESS).then((bundler) => {
       setBundler(bundler);
-    })();
+    });
   }, []);
 
   useEffect(() => {
@@ -90,7 +89,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
         setStatus('uninitialized');
       }
     }
-  }, []);
+  }, [vault]);
 
   useEffect(() => {
     if (Object.keys(appKeyrings).length && !activeAccountUsername) {
@@ -105,9 +104,10 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     }
 
     try {
-      const result = await encryptor.decryptWithDetail(password, vault);
+      // const result = await encryptor.decryptWithDetail(password, vault);
+      await encryptor.decryptWithDetail(password, vault);
 
-      const _vault: any = result.vault;
+      // const _vault: any = result.vault;
       return true;
     } catch (error) {
       throw new Error('Invalid PIN');
@@ -172,7 +172,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
 
     console.log('ENCRYPT:', serializedKeyrings, _keyrings);
 
-    const { vault: newVault, exportedKeyString } = await encryptor.encryptWithDetail(password, serializedKeyrings);
+    const { vault: newVault } = await encryptor.encryptWithDetail(password, serializedKeyrings);
     console.log(vault);
 
     // Note: these keys and salt can be used with webAuthn to unlock the vault using biometrics
@@ -255,7 +255,7 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     console.log('KEYRING:', _keyring);
 
     encryptVault(pin, newKeyrings);
-    setDeviceWallet(deviceWallet);
+    // setDeviceWallet(deviceWallet);
     setAppKeyrings(newKeyrings);
     setStatus('unlocked');
 
