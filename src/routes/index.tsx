@@ -28,7 +28,7 @@ const LoadingSplashScreen = () => {
       flexDirection="column"
       justifyContent="space-between">
       <Image
-        src="/logo-512.png"
+        src="/logo512.png"
         alt="logo"
         width={200}
         height={200}
