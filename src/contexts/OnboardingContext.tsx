@@ -243,6 +243,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
     } else {
       const _idToken = await firebaseUser.getIdToken(true);
       console.debug('WEB3AUTH: provider not set yet. requesting id token');
+
       const _provider = await web3Auth
         .connect({
           verifier: 'wallet-firebase',
@@ -264,7 +265,7 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
           return _provider;
         })
         .catch((err) => {
-          console.error(err);
+          console.error('WEB3AUTH: Connection failed', err);
         });
 
       return _provider;
