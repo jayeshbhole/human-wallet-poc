@@ -1,12 +1,8 @@
-import { Box, Flex, Icon, Input } from '@chakra-ui/react';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import { Dispatch, SetStateAction, useContext, useMemo, useState } from 'react';
-import Keypad from '../../components/Keypad';
+import { useContext, useMemo, useState } from 'react';
 import { OnboardingActionButton } from '../../components/Onboarding';
 import { HeadingBox, HeadingEmphasis, StepDescription, StepTitle } from '../../components/Onboarding/headings';
 import PinInput from '../../components/PINInput';
 import { OnboardingContext } from '../../contexts/OnboardingContext';
-import useDigitInputs from '../../hooks/useDigitInputs';
 
 const SelectDevicePin = () => {
   const [pinValue, setPinValue] = useState('');
@@ -32,8 +28,14 @@ const SelectDevicePin = () => {
   const handleAction = async () => {
     if (confirmPin) {
       if (pinValue === confirmPinValue) {
-        setLoading(true);
-        await handlePinSubmit(pinValue);
+        try {
+          setLoading(true);
+
+          await handlePinSubmit(pinValue);
+        } catch (e) {
+          console.log(e);
+          setLoading(false);
+        }
       }
     } else {
       if (pinValue.length === 6) {

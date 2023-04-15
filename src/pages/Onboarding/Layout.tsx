@@ -1,5 +1,4 @@
-import { Box, Button, Grid, IconButton } from '@chakra-ui/react';
-import { ChevronLeftIcon } from '@heroicons/react/20/solid';
+import { Box } from '@chakra-ui/react';
 import { Outlet } from 'react-router-dom';
 
 const OnboardingLayout = () => {

@@ -25,7 +25,7 @@ const Send = () => {
   const [recipientSuggestions, setRecipientSuggestions] = useState<any>(null);
   const [recipientError, setRecipientError] = useState('');
 
-  const [token, setToken] = useState('ETH');
+  const [token] = useState('ETH');
   const [balance, setBalance] = useState<BigNumberish>('-.-');
 
   const [op, setOp] = useState<any>(null);

@@ -24,7 +24,7 @@ class HumanAccountClientAPI extends HumanAccountAPI {
     this.signerWallet = params.signerWallet;
     // const wallet = params.deserializeState?.data.signerKey
     //   ? new ethers.Wallet(params.deserializeState?.data.signerKey)
-    //   : new ethers.Wallet(import.meta.env.VITE_SIGNER_PRIVATE_KEY ?? '');
+    //   : new ethers.Wallet(process.env.REACT_APP_SIGNER_PRIVATE_KEY ?? '');
     // : ethers.Wallet.createRandom();
 
     this.index = params.index ?? 0;

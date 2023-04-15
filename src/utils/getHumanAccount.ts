@@ -1,5 +1,4 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { VerifyingPaymaster } from '@humanwallet/contracts';
 import { ethers, Wallet } from 'ethers';
 import { DeserializeState } from '../types/account';
 import HumanAccountClientAPI from './account-api';
@@ -38,7 +37,7 @@ export async function getHumanAccount({
       // generate a new signer if deserialieState does not contain a key
       _signerWallet = deserializeState?.data.signerKey
         ? new ethers.Wallet(deserializeState?.data.signerKey)
-        : // : new ethers.Wallet(import.meta.env.VITE_SIGNER_PRIVATE_KEY ?? '');
+        : // : new ethers.Wallet(process.env.REACT_APP_SIGNER_PRIVATE_KEY ?? '');
           ethers.Wallet.createRandom();
     }
   }

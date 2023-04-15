@@ -1,7 +1,5 @@
 import { Box, Heading, Text } from '@chakra-ui/react';
-import { ReactNode, useContext, useEffect, useState } from 'react';
-import { Outlet, RouteObject, useRoutes } from 'react-router-dom';
-import { OnboardingContext } from '../../contexts/OnboardingContext';
+import { ReactNode } from 'react';
 
 export const HeadingEmphasis = ({ children }: { children: ReactNode }) => {
   return (

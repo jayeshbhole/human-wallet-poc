@@ -1,8 +1,7 @@
 import { Box, Image, Spinner } from '@chakra-ui/react';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useKeyringContext } from '../contexts/KeyringContext';
-import { OnboardingContext } from '../contexts/OnboardingContext';
 
 const LoadingSplashScreen = () => {
   const { vault } = useKeyringContext();

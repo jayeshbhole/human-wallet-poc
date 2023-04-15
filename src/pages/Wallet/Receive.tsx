@@ -1,6 +1,5 @@
 import { CheckIcon, CopyIcon } from '@chakra-ui/icons';
 import { Flex, Grid, Heading, IconButton, Text, useClipboard } from '@chakra-ui/react';
-import { CheckBadgeIcon } from '@heroicons/react/24/outline';
 import BackButton from '../../components/BackButton';
 import { useKeyringContext } from '../../contexts/KeyringContext';
 

@@ -1,8 +1,7 @@
+import { HumanAccountApiParams } from '@humanwallet/sdk/dist/src/HumanAccountAPI';
+import { Wallet } from 'ethers';
 import { AnyAssetAmount } from './asset';
 import { EVMNetwork } from './network';
-import { HumanAccountAPI, HumanAccountApiParams } from '@humanwallet/sdk/dist/src/HumanAccountAPI';
-import { Wallet } from 'ethers';
-import HumanAccountClientAPI from '../utils/account-api';
 
 type AccountBalance = {
   address: string;
@@ -56,10 +55,10 @@ type HumanAccountData = {
 };
 
 export type {
+  AccountBalance,
   DeserializeState,
   HumanAccountApiParamsType,
   HumanAccountData,
-  AccountBalance,
-  Vault,
   KeyringSerialisedState,
+  Vault,
 };
