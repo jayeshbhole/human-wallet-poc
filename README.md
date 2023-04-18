@@ -1,4 +1,4 @@
-# AA Human Wallet
+# One - AA Human Wallet
 
 > TLDR;
 > "A Wallet Experience for Humans; Not Crypto/Web3"
