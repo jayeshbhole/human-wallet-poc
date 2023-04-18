@@ -1,37 +1,11 @@
-# Web3Auth (`@web3auth/single-factor-auth`) React Example
+# AA Human Wallet
 
-[![Web3Auth](https://img.shields.io/badge/Web3Auth-SDK-blue)](https://web3auth.io/docs/sdk/single-factor-auth/)
-[![Web3Auth](https://img.shields.io/badge/Web3Auth-Community-cyan)](https://community.web3auth.io)
+> TLDR;
+> "A Wallet Experience for Humans; Not Crypto/Web3"
 
-[Join our Community Portal](https://community.web3auth.io/) to get support and stay up to date with the latest news and updates.
+Wallets have been one of the most worked on projects in the web3 world. Many of the pioneers of this space have wallets that have a huge user base but they require high prerequisites of understanding and maintaining the accounts. In terms of safety, recovery and even actions as simple as a transfer.
 
-This example demonstrates how to use Web3Auth's Single Factor Authentication in a React environment.
+One Wallet provides an abstracted user interface where users can create and log into their wallets using their phone numbers!
+With the ability to add new devices on the fly, One provides a very quick onboarding for the users.
 
-## How to Use
-
-### Download Manually
-
-```bash
-npx degit Web3Auth/web3auth-core-kit-examples/single-factor-auth/sfa-react-example w3a-sfa-react-example
-```
-
-Install & Run:
-
-```bash
-cd w3a-sfa-react-example
-npm install
-npm run start
-# or
-cd w3a-sfa-react-example
-yarn
-yarn start
-```
-
-## Important Links
-
-- [Website](https://web3auth.io)
-- [Docs](https://web3auth.io/docs)
-- [Guides](https://web3auth.io/docs/guides)
-- [SDK / API References](https://web3auth.io/docs/sdk)
-- [Pricing](https://web3auth.io/pricing.html)
-- [Community Portal](https://community.web3auth.io)
+One wallet is built for simplicity and ease of understanding, with a need-to-know user experience design. Sending ETH and logging into your account on infinite devices are the first few features of the One Wallet.
