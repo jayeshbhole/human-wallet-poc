@@ -15,23 +15,23 @@ export const CurrencyETH = createIcon({
       <path
         d="M13 1.625V24.375"
         stroke="#4B515F"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M21.9375 13L13 17.0625L4.0625 13"
         stroke="#4B515F"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M13 1.625L21.9375 13L13 24.375L4.0625 13L13 1.625Z"
         stroke="#4B515F"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   ),
