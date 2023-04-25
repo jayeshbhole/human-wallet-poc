@@ -332,24 +332,24 @@ export const OnboardingContextProvider = ({ children }: { children: React.ReactN
         return;
       }
 
-      try {
-        const regDevice = await initDeviceWithPin({
-          pin: pin,
-          accountUsername: accountUsername,
-          ownerSigner: ownerWallet,
-        });
+      // try {
+      const regDevice = await initDeviceWithPin({
+        pin: pin,
+        accountUsername: accountUsername,
+        ownerSigner: ownerWallet,
+      });
 
-        if (!regDevice) {
-          console.error('Error initializing device');
-          return;
-        }
-
-        navigate('/onboarding/final', {
-          replace: true,
-        });
-      } catch (err) {
-        console.error(err);
+      if (!regDevice) {
+        console.error('Error initializing device');
+        return;
       }
+
+      navigate('/onboarding/final', {
+        replace: true,
+      });
+      // } catch (err) {
+      //   console.error(err);
+      // }
     },
     [accountUsername, ownerWallet, firebaseUser, initDeviceWithPin, navigate]
   );

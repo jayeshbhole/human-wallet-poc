@@ -28,20 +28,22 @@ const SelectDevicePin = () => {
   const handleAction = async () => {
     if (confirmPin) {
       if (pinValue === confirmPinValue) {
-        try {
-          setLoading(true);
+        // try {
+        setLoading(true);
 
-          await handlePinSubmit(pinValue);
-        } catch (e) {
-          console.log(e);
-          setLoading(false);
-        }
+        await handlePinSubmit(pinValue);
+        // } catch (e) {
+        //   console.log(e);
+        //   setLoading(false);
+        // }
       }
     } else {
       if (pinValue.length === 6) {
         setConfirmPin(true);
       }
     }
+
+    setLoading(false);
   };
 
   return (

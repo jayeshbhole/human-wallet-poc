@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ethers, BytesLike } from 'ethers';
-import { PaymasterAPI, calcPreVerificationGas } from '@humanwallet/sdk';
+import { calcPreVerificationGas } from '@humanwallet/sdk';
 import { UserOperationStruct } from '@humanwallet/contracts';
 import { toJSON } from './opUtils';
 import { ENTRYPOINT_ADDRESS, PAYMASTER_URL } from './constants';
@@ -10,22 +10,31 @@ const SIG_SIZE = 65;
 const DUMMY_PAYMASTER_AND_DATA =
   '0x0101010101010101010101010101010101010101000000000000000000000000000000000000000000000000000001010101010100000000000000000000000000000000000000000000000000000000000000000101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101';
 
+// interface paymasterResponse {
+//   jsonrpc: string;
+//   id: number;
+//   result: BytesLike;
+// }
 interface paymasterResponse {
   jsonrpc: string;
   id: number;
-  result: BytesLike;
+  result: {
+    paymasterAndData: BytesLike;
+  };
 }
 
-export class VerifyingPaymasterAPI extends PaymasterAPI {
+export class VerifyingPaymasterAPI {
   private paymasterUrl: string;
   private entryPoint: string;
   constructor(paymasterUrl: string, entryPoint: string) {
-    super();
     this.paymasterUrl = paymasterUrl;
     this.entryPoint = entryPoint;
   }
 
-  async getPaymasterAndData(userOp: Partial<UserOperationStruct>): Promise<string> {
+  async getPaymasterAndData(userOp: Partial<UserOperationStruct>): Promise<{
+    paymasterAndData: BytesLike;
+    preVerificationGas: number;
+  }> {
     // Hack: userOp includes empty paymasterAndData which calcPreVerificationGas requires.
     try {
       // userOp.preVerificationGas contains a promise that will resolve to an error.
@@ -48,15 +57,22 @@ export class VerifyingPaymasterAPI extends PaymasterAPI {
     const op = await ethers.utils.resolveProperties(pmOp);
     op.preVerificationGas = calcPreVerificationGas(op);
 
+    const jsonOp = await toJSON(op);
+    console.log('jsonOp', jsonOp);
+
     // Ask the paymaster to sign the transaction and return a valid paymasterAndData value.
-    return axios
+    const paymasterAndData = await axios
       .post<paymasterResponse>(this.paymasterUrl, {
         jsonrpc: '2.0',
         id: 1,
         method: 'pm_sponsorUserOperation',
-        params: [await toJSON(op), this.entryPoint],
+        params: [jsonOp, { entryPoint: this.entryPoint }],
       })
-      .then((res) => res.data.result.toString());
+      .then((res) => res.data.result.paymasterAndData.toString());
+    return {
+      paymasterAndData,
+      preVerificationGas: op.preVerificationGas,
+    };
   }
 }
 

@@ -9,6 +9,7 @@ import ConfirmationModal from '../../components/Send/ConfirmationModal';
 import RecipientInput from '../../components/Send/RecipientInput';
 import { useKeyringContext } from '../../contexts/KeyringContext';
 import { SUBGRAPH_URL } from '../../utils/constants';
+import { paymasterAPI } from '../../utils/getPaymaster';
 import { printOp } from '../../utils/opUtils';
 
 const HUMANACCOUNT_QUERY = `
@@ -60,9 +61,13 @@ const Send = () => {
     if (!bundler) throw new Error('Bundler is not initialized');
     // create op
     if (activeAccount && amount && isAddress(recipientAddress)) {
+      const value = ethers.utils.parseEther(amount);
+      console.log('value-', value);
+      // @ts-ignore
+      activeAccount.paymasterAPI = paymasterAPI;
       const signedUserOp = await activeAccount.createSignedUserOp({
         target: recipientAddress,
-        value: ethers.utils.parseEther(amount),
+        value,
         data: '0x',
       });
       console.log(await printOp(signedUserOp));

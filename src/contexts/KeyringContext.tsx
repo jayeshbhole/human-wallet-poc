@@ -1,4 +1,4 @@
-import { HttpRpcClient, PaymasterAPI } from '@humanwallet/sdk';
+import { HttpRpcClient } from '@humanwallet/sdk';
 import * as encryptor from '@metamask/browser-passworder';
 import { ethers, Wallet } from 'ethers';
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -18,8 +18,6 @@ interface KeyringContextInterface {
 
   status: 'locked' | 'unlocked' | 'uninitialized';
   error: string | undefined;
-
-  paymasterAPI: PaymasterAPI | undefined;
 
   // accounts: HumanAccountData[];
   activeAccount?: HumanAccountClientAPI | undefined;
@@ -47,8 +45,6 @@ export const KeyringContext = createContext<KeyringContextInterface>({
   keyrings: {},
   error: undefined,
   status: 'locked',
-
-  paymasterAPI: undefined,
 
   // accounts: [],
   activeAccount: undefined,
@@ -223,10 +219,9 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
     const isDeviceRegistered = isAccountDeployed && (await accountContract.deviceKeys(deviceAddress));
 
     if (!isAccountDeployed || !isDeviceRegistered) {
-      // ownerSignerAcc.paymasterAPI = paymasterAPI;
-      // if (!isAccountDeployed) {
-      //   ownerSignerAcc.paymasterAPI = paymasterAPI;
-      // }
+      // @ts-ignore
+      ownerSignerAcc.paymasterAPI = paymasterAPI;
+
       const res = await registerDeviceKey({
         provider,
         accountUsername,
@@ -310,7 +305,6 @@ export const KeyringContextProvider = ({ children }: { children: React.ReactNode
         keyrings: appKeyrings,
         status,
         error,
-        paymasterAPI,
         // accounts,
         activeAccount: activeAccount,
         checkPIN,

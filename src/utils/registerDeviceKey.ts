@@ -22,17 +22,27 @@ const registerDeviceKey = async ({
   bundler: HttpRpcClient;
 }) => {
   console.log('===registering device key', deviceAddress, 'for account', accountUsername, accountContract.address);
+
   const registerRequestHash = ethers.utils.keccak256(ethers.utils.defaultAbiCoder.encode(['address'], [deviceAddress]));
+  const registerRequestHashBytes = ethers.utils.arrayify(registerRequestHash);
+  console.log('signing register request hash');
 
   // sign the public key with the account's private key
-  const sig = await ownerSigner.signMessage(ethers.utils.arrayify(registerRequestHash));
+  const sig = await ownerSigner.signMessage(registerRequestHashBytes);
+  console.log('creating signed user operation (registerDeviceKey)');
 
-  const registerOp = await humanAccount.createSignedUserOp({
+  const registerCallData = accountContract.interface.encodeFunctionData('registerDeviceKey', [deviceAddress, sig]);
+  console.log('registerCallData', registerCallData);
+
+  const opData = {
     target: accountContract.address,
-    value: 0,
-    data: accountContract.interface.encodeFunctionData('registerDeviceKey', [deviceAddress, sig]),
+    value: '',
+    data: registerCallData,
     ...(await getGasFee(provider)),
-  });
+  };
+  console.log('opData', opData);
+
+  const registerOp = await humanAccount.createSignedUserOp(opData);
   console.log(`Signed UserOperation: ${await printOp(registerOp)}`);
 
   const uoHash = await bundler.sendUserOpToBundler(registerOp);

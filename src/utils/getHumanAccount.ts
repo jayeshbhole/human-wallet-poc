@@ -50,6 +50,7 @@ export async function getHumanAccount({
     signerWallet: _signerWallet,
     ownerAddress: ownerAddress,
     entryPointAddress: entryPointAddress,
+    // @ts-ignore
     paymasterAPI: paymasterAPI,
   });
 
