@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ethers, BytesLike } from 'ethers';
+import { ethers } from 'ethers';
 import { calcPreVerificationGas } from '@humanwallet/sdk';
 import { UserOperationStruct } from '@humanwallet/contracts';
 import { toJSON } from './opUtils';
@@ -19,7 +19,7 @@ interface paymasterResponse {
   jsonrpc: string;
   id: number;
   result: {
-    paymasterAndData: BytesLike;
+    paymasterAndData: string;
   };
 }
 
@@ -32,7 +32,7 @@ export class VerifyingPaymasterAPI {
   }
 
   async getPaymasterAndData(userOp: Partial<UserOperationStruct>): Promise<{
-    paymasterAndData: BytesLike;
+    paymasterAndData: string;
     preVerificationGas: number;
   }> {
     // Hack: userOp includes empty paymasterAndData which calcPreVerificationGas requires.
