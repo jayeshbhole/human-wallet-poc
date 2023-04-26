@@ -143,7 +143,7 @@ const Send = () => {
     setRecipientError('');
     const getData = setTimeout(async () => {
       if (recipient.length > 3)
-        if (recipient.endsWith('@uno')) {
+        if (recipient.endsWith('@one')) {
           const graphql = JSON.stringify({
             query: HUMANACCOUNT_QUERY,
             variables: { where: { username: recipient.split('@')[0] } },
